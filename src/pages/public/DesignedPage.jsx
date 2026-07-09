@@ -9,7 +9,9 @@ const programs = [
   ['01', 'Strength Training', 'Power & Muscle', 'Focused resistance training designed to build foundational strength and muscle mass through periodized programming.'],
   ['02', 'Cardio + Strength', 'Hybrid Performance', 'A balanced protocol combining metabolic conditioning with traditional weightlifting for well-rounded athletic development.'],
   ['03', 'Aerobics', 'Endurance & Agility', 'High-energy rhythmic movement to improve cardiovascular health, coordination and confidence.'],
-  ['04', 'Personal Training', 'Individualized Coaching', 'One-on-one guidance with male and female trainers available to help you reach specific goals.'],
+  ['04', 'Aerobics + Cardio', 'Maximum Burn', 'An intensive combined program targeting aggressive fat loss and high-level stamina under coach supervision.'],
+  ['05', 'Personal Training', 'Individualized Coaching', 'One-on-one guidance with male and female trainers available to help you reach specific goals.'],
+  ['06', 'Facilities', 'Secure Storage', 'Personal locker facilities are available for all members to ensure your belongings stay safe while you train.'],
 ];
 
 const plans = [
@@ -83,7 +85,7 @@ export default function DesignedPage({ slug }) {
 
       {slug === 'programs' && <ProgramsFallback />}
       {slug === 'trainers' && <TrainersFallback />}
-      {slug === 'pricing' && !hasCmsContent && <PricingFallback branches={branches} />}
+      {slug === 'pricing' && <PricingFallback branches={branches} />}
       {slug === 'contact' && <ContactFallback branches={branches} />}
     </div>
   );
@@ -96,7 +98,7 @@ function ProgramsFallback() {
         {programs.map(([no, category, title, copy], i) => (
           <article key={no} className={`group relative flex flex-col gap-6 p-8 transition-colors hover:bg-paper-dim md:p-10 ${i % 2 === 0 ? 'md:border-r md:border-ink/10' : ''} ${i >= 2 ? 'md:border-t md:border-ink/10' : ''}`}>
             <div className="flex items-baseline justify-between">
-              <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-ink/40">No {no}</span>
+              <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-ink/40">№ {no}</span>
               <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-ember">{category}</span>
             </div>
             <h2 className="font-display text-4xl uppercase leading-none md:text-6xl">{title}</h2>
@@ -132,7 +134,7 @@ function PricingFallback({ branches }) {
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
         {plans.map(([no, name, tag, copy, featured]) => (
           <article key={no} className={`flex flex-col justify-between border p-8 transition-colors ${featured ? 'border-ember bg-ink text-paper' : 'border-ink/15 bg-paper hover:border-ember'}`}>
-            <div><div className="flex items-baseline justify-between"><span className={`font-mono text-[10px] uppercase tracking-[0.3em] ${featured ? 'text-paper/50' : 'text-ink/40'}`}>No {no}</span><span className="font-mono text-[10px] uppercase tracking-[0.3em] text-ember">{tag}</span></div><h2 className="mt-6 font-display text-4xl uppercase leading-none md:text-5xl">{name}</h2><p className={`mt-4 text-sm ${featured ? 'text-paper/70' : 'text-ink-muted'}`}>{copy}</p></div>
+            <div><div className="flex items-baseline justify-between"><span className={`font-mono text-[10px] uppercase tracking-[0.3em] ${featured ? 'text-paper/50' : 'text-ink/40'}`}>№ {no}</span><span className="font-mono text-[10px] uppercase tracking-[0.3em] text-ember">{tag}</span></div><h2 className="mt-6 font-display text-4xl uppercase leading-none md:text-5xl">{name}</h2><p className={`mt-4 text-sm ${featured ? 'text-paper/70' : 'text-ink-muted'}`}>{copy}</p></div>
             <div className={`mt-8 border-t pt-4 font-mono text-[10px] uppercase tracking-[0.3em] ${featured ? 'border-paper/20 text-paper/60' : 'border-ink/15 text-ink/50'}`}>Ask branch for rate</div>
           </article>
         ))}

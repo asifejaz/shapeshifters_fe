@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../../api';
 import { useSiteData } from './PublicLayout';
-import { ArrowRight, Package, ShoppingBag } from 'lucide-react';
+import { ArrowRight, Package } from 'lucide-react';
 import heroImage from '../../assets/new-design/hero-athlete.jpg';
 import trainingImg from '../../assets/new-design/pillar-training.jpg';
 import fitnessImg from '../../assets/new-design/pillar-fitness.jpg';
@@ -27,12 +27,14 @@ export default function HomePage() {
   const [homepage, setHomepage] = useState(null);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [featuredProducts, setFeaturedProducts] = useState([]);
+  const [posters, setPosters] = useState([]);
   const sliders = siteData?.sliders || [];
   const settings = siteData?.settings || {};
   const shopEnabled = ['true', '1', true, 1].includes(settings.shop_enabled);
 
   useEffect(() => {
     api.get('/public/homepage').then((res) => setHomepage(res.data)).catch(() => null);
+    api.get('/public/posters').then((res) => setPosters(res.data || [])).catch(() => setPosters([]));
   }, []);
 
   useEffect(() => {
@@ -74,6 +76,20 @@ export default function HomePage() {
     ][i],
     image: pillarImages[i],
   })), [settings]);
+
+  const posterWallItems = posters.length > 0
+    ? posters.slice(0, 5).map((poster, index) => ({
+      no: `№ ${String(index + 1).padStart(2, '0')}`,
+      title: poster.title,
+      series: poster.series || 'Poster Series',
+      quote: poster.quote,
+      imageUrl: poster.image_url,
+    }))
+    : ['Mind Series', 'Iron Series', 'Discipline Series', 'Grit Series', 'Ritual Series'].map((series, index) => ({
+      no: `№ ${String(index + 1).padStart(2, '0')}`,
+      title: 'Coming Soon',
+      series,
+    }));
 
   return (
     <>
@@ -190,16 +206,28 @@ export default function HomePage() {
             </div>
             <Link to="/posters" className="inline-flex items-center gap-2 border-b border-paper pb-1 font-mono text-[11px] font-semibold uppercase tracking-[0.22em] transition-opacity hover:opacity-70">View Posters →</Link>
           </div>
-          <div className="grid gap-4 md:grid-cols-3">
-            {['Mind Series', 'Iron Series', 'Discipline Series'].map((series, i) => (
-              <Link key={series} to="/posters" className="group aspect-[3/4] bg-ink-muted p-6 ring-1 ring-paper/5 transition-transform hover:-translate-y-1">
-                <div className="flex h-full flex-col justify-between border border-paper/10 p-5">
-                  <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-paper/40">№ {String(i + 1).padStart(2, '0')}</span>
-                  <div>
-                    <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-ember">{series}</span>
-                    <h3 className="mt-3 font-display text-4xl uppercase leading-none text-paper/80">Poster Drop</h3>
-                  </div>
+          <div className="-mx-6 flex snap-x snap-mandatory gap-6 overflow-x-auto px-6 pb-4">
+            {posterWallItems.map((poster) => (
+              <Link key={`${poster.no}-${poster.title}`} to="/posters" className="group w-[280px] shrink-0 snap-start md:w-[340px]">
+                <div className="relative aspect-[3/4] overflow-hidden bg-ink-muted ring-1 ring-paper/5 transition-transform duration-500 group-hover:-translate-y-1">
+                  {poster.imageUrl ? (
+                    <img src={poster.imageUrl} alt={poster.title} loading="lazy" className="h-full w-full object-cover" />
+                  ) : (
+                    <div className="flex h-full w-full flex-col items-center justify-center gap-3 p-6 text-center">
+                      <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-paper/30">{poster.series}</span>
+                      <span className="font-display text-3xl uppercase text-paper/50">Coming Soon</span>
+                      <span className="h-px w-8 bg-paper/20" />
+                    </div>
+                  )}
+                  <span className="absolute top-3 right-3 bg-ink px-2 py-1 font-mono text-[9px] uppercase tracking-[0.22em] text-paper/60 opacity-0 transition-opacity group-hover:bg-ember group-hover:text-paper group-hover:opacity-100">
+                    {poster.series}
+                  </span>
                 </div>
+                <div className="mt-4 flex items-baseline justify-between gap-3 font-mono text-[10px] uppercase tracking-[0.22em] text-paper/50">
+                  <span>{poster.no}</span>
+                  <span className="text-right text-paper/80">{poster.title}</span>
+                </div>
+                {poster.quote && <p className="mt-2 max-w-[38ch] text-xs italic text-paper/60">“{poster.quote}”</p>}
               </Link>
             ))}
           </div>
