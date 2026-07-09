@@ -58,6 +58,7 @@ export default function DesignedPage({ slug }) {
   const [loading, setLoading] = useState(true);
   const meta = defaults[slug] || defaults.programs;
   const hasCmsContent = Boolean(page?.content?.trim());
+  const showCmsContent = hasCmsContent && slug !== 'trainers';
 
   useEffect(() => {
     setLoading(true);
@@ -75,12 +76,12 @@ export default function DesignedPage({ slug }) {
 
       {loading ? (
         <div className="grid place-items-center py-16"><div className="h-8 w-8 animate-spin rounded-full border-b-2 border-ember" /></div>
-      ) : page?.content ? (
+      ) : showCmsContent ? (
         <section className="mx-auto max-w-4xl px-6 pb-20"><div className="ss-prose" dangerouslySetInnerHTML={{ __html: page.content }} /></section>
       ) : null}
 
       {slug === 'programs' && !hasCmsContent && <ProgramsFallback />}
-      {slug === 'trainers' && !hasCmsContent && <TrainersFallback />}
+      {slug === 'trainers' && <TrainersFallback />}
       {slug === 'pricing' && !hasCmsContent && <PricingFallback branches={branches} />}
       {slug === 'contact' && <ContactFallback branches={branches} />}
     </div>
