@@ -246,3 +246,10 @@ body {
 .ss-theme textarea::placeholder {
   color: transparent;
 }
+
+.ss-theme .ss-contact-form input,
+.ss-theme .ss-contact-form textarea {
+  background-color: transparent;
+  border-radius: 0;
+  box-shadow: none;
+}

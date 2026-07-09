@@ -144,7 +144,18 @@ function ContactFallback({ branches }) {
   return (
     <section className="mx-auto max-w-screen-xl px-6 pb-24">
       <div className="grid grid-cols-1 gap-10 md:grid-cols-[1fr_1.2fr] md:gap-16">
-        <div className="space-y-8"><span className="font-mono text-[10px] uppercase tracking-[0.3em] text-ember">Visit Us</span>{branches.map((branch, index) => <div key={branch.id} className="border-t border-ink/10 pt-6"><div className="flex items-baseline justify-between font-mono text-[10px] uppercase tracking-[0.3em] text-ink/40"><span>No {String(index + 1).padStart(2, '0')}</span><span>Wah Cantt</span></div><h4 className="mt-2 font-display text-2xl uppercase">{branch.name}</h4><p className="mt-2 max-w-sm text-sm text-ink-muted">{branch.address}</p>{branch.phone && <a href={`tel:${branch.phone.replace(/\D/g, '')}`} className="mt-3 inline-block font-mono text-xs font-semibold hover:text-ember">{branch.phone}</a>}</div>)}</div>
+        <div className="space-y-10">
+          <div>
+            <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-ember">Working Hours</span>
+            <h3 className="mt-3 font-display text-3xl uppercase leading-none">06:00 - 22:00</h3>
+            <p className="mt-2 text-sm text-ink-muted">Monday through Saturday. Closed Sunday.</p>
+          </div>
+
+          <div className="space-y-6">
+            <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-ember">Visit Us</span>
+            {branches.map((branch, index) => <div key={branch.id} className="border-t border-ink/10 pt-6"><div className="flex items-baseline justify-between font-mono text-[10px] uppercase tracking-[0.3em] text-ink/40"><span>No {String(index + 1).padStart(2, '0')}</span><span>Wah Cantt</span></div><h4 className="mt-2 font-display text-2xl uppercase">{branch.name}</h4><p className="mt-2 max-w-sm text-sm text-ink-muted">{branch.address}</p>{branch.phone && <a href={`tel:${branch.phone.replace(/\D/g, '')}`} className="mt-3 inline-block font-mono text-xs font-semibold hover:text-ember">{branch.phone}</a>}</div>)}
+          </div>
+        </div>
         <div className="bg-paper-dim p-8 md:p-10"><span className="font-mono text-[10px] uppercase tracking-[0.3em] text-ember">Send us a message</span><h3 className="mt-3 mb-8 font-display text-3xl uppercase leading-none">Get in touch</h3><ContactForm inline /></div>
       </div>
     </section>
