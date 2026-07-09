@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link, useParams } from 'react-router-dom';
 import api from '../../api';
 import { ArrowLeft } from 'lucide-react';
 import ContactForm from '../../components/ContactForm';
@@ -14,26 +14,23 @@ export default function PublicPage() {
     setLoading(true);
     setNotFound(false);
     api.get(`/public/pages/${slug}`)
-      .then((res) => { setPage(res.data); setLoading(false); })
-      .catch(() => { setNotFound(true); setLoading(false); });
+      .then((res) => setPage(res.data))
+      .catch(() => setNotFound(true))
+      .finally(() => setLoading(false));
   }, [slug]);
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center py-32">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--forge-primary)]" />
-      </div>
-    );
+    return <div className="grid place-items-center py-32"><div className="h-8 w-8 animate-spin rounded-full border-b-2 border-ember" /></div>;
   }
 
   if (notFound) {
     return (
-      <div className="py-32 text-center">
-        <h1 className="text-7xl font-bold text-[var(--forge-fg)] mb-4" style={{ fontFamily: 'Orbitron, system-ui' }}>404</h1>
-        <h2 className="text-xl font-semibold text-[var(--forge-fg)]">Page not found</h2>
-        <p className="mt-2 text-sm text-[var(--forge-muted)]">The page you're looking for doesn't exist or has been moved.</p>
-        <Link to="/" className="inline-flex items-center gap-2 mt-6 bg-forge text-[var(--forge-primary-fg)] shadow-ember px-5 py-2.5 rounded-lg text-sm font-bold uppercase tracking-wider hover:opacity-90 transition-opacity">
-          <ArrowLeft className="w-4 h-4" /> Go Home
+      <div className="mx-auto max-w-screen-xl px-6 py-32 text-center">
+        <h1 className="font-display text-8xl uppercase leading-none">404</h1>
+        <h2 className="mt-3 text-xl font-semibold">Page not found</h2>
+        <p className="mt-2 text-sm text-ink-muted">The page you are looking for does not exist or has been moved.</p>
+        <Link to="/" className="mt-8 inline-flex items-center gap-2 bg-ink px-6 py-3 font-mono text-[11px] font-semibold uppercase tracking-[0.22em] text-paper hover:bg-ember">
+          <ArrowLeft className="h-4 w-4" /> Go Home
         </Link>
       </div>
     );
@@ -41,44 +38,21 @@ export default function PublicPage() {
 
   return (
     <div>
-      {/* Page header */}
-      <section className="relative overflow-hidden py-20">
-        <div className="absolute inset-0 grid-lines opacity-30" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,oklch(0.6_0.25_30/0.2),transparent_60%)]" />
-        <div className="max-w-7xl mx-auto px-4 relative">
-          <div className="text-xs font-semibold uppercase tracking-[0.4em] text-[var(--forge-primary)]">Page</div>
-          <h1 className="mt-3 text-4xl md:text-5xl font-black uppercase" style={{ fontFamily: 'Orbitron, system-ui' }}>
-            {page.title}
-          </h1>
-          {page.excerpt && <p className="mt-4 text-lg text-[var(--forge-muted)] max-w-2xl">{page.excerpt}</p>}
-        </div>
+      <header className="mx-auto max-w-screen-xl px-6 pt-20 pb-16">
+        <span className="mb-6 block font-mono text-[10px] uppercase tracking-[0.3em] text-ember">Page</span>
+        <h1 className="font-display text-6xl leading-[0.85] uppercase text-balance md:text-8xl">{page.title}</h1>
+        {page.excerpt && <p className="mt-8 max-w-2xl text-base text-ink-muted">{page.excerpt}</p>}
+        <div className="mt-10 h-px w-full bg-ink/10" />
+      </header>
+
+      <section className="mx-auto max-w-4xl px-6 pb-20">
+        {page.content ? <div className="ss-prose" dangerouslySetInnerHTML={{ __html: page.content }} /> : <p className="text-ink-muted">This page has no content yet.</p>}
       </section>
 
-      {/* Page content */}
-      <section className="py-12">
-        <div className="max-w-4xl mx-auto px-4">
-          {page.content ? (
-            <div
-              className="prose prose-invert prose-lg max-w-none prose-headings:font-black prose-headings:uppercase prose-a:text-[var(--forge-primary)] prose-strong:text-[var(--forge-fg)]"
-              style={{ '--tw-prose-body': 'var(--forge-muted)', '--tw-prose-headings': 'var(--forge-fg)' }}
-              dangerouslySetInnerHTML={{ __html: page.content }}
-            />
-          ) : (
-            <p className="text-[var(--forge-muted)]">This page has no content yet.</p>
-          )}
-        </div>
-      </section>
-
-      {/* Contact form on contact page */}
       {slug === 'contact' && (
-        <section className="py-12 border-t border-[var(--forge-border)]">
-          <div className="max-w-4xl mx-auto px-4">
-            <div className="text-center mb-10">
-              <div className="text-xs font-semibold uppercase tracking-[0.4em] text-[var(--forge-primary)]">Get in Touch</div>
-              <h2 className="mt-3 text-3xl font-black uppercase" style={{ fontFamily: 'Orbitron, system-ui' }}>Send us a message</h2>
-            </div>
-            <ContactForm />
-          </div>
+        <section className="mx-auto max-w-4xl border-t border-ink/10 px-6 py-16">
+          <div className="mb-10 text-center"><span className="font-mono text-[10px] uppercase tracking-[0.3em] text-ember">Get in Touch</span><h2 className="mt-3 font-display text-4xl uppercase">Send us a message</h2></div>
+          <ContactForm />
         </section>
       )}
     </div>

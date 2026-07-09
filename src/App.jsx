@@ -32,6 +32,8 @@ const SubscribersReportDetails = lazy(() => import('./pages/reports/SubscribersR
 const PublicLayout = lazy(() => import('./pages/public/PublicLayout'));
 const HomePage = lazy(() => import('./pages/public/HomePage'));
 const PublicPage = lazy(() => import('./pages/public/PublicPage'));
+const DesignedPage = lazy(() => import('./pages/public/DesignedPage'));
+const PostersPage = lazy(() => import('./pages/public/PostersPage'));
 const GalleryPage = lazy(() => import('./pages/public/GalleryPage'));
 const ShopPage = lazy(() => import('./pages/public/ShopPage'));
 const CheckoutPage = lazy(() => import('./pages/public/CheckoutPage'));
@@ -78,6 +80,11 @@ function App() {
             {/* Public website */}
             <Route element={<PublicLayout />}>
               <Route path="/" element={<HomePage />} />
+              <Route path="/programs" element={<DesignedPage slug="programs" />} />
+              <Route path="/trainers" element={<DesignedPage slug="trainers" />} />
+              <Route path="/pricing" element={<DesignedPage slug="pricing" />} />
+              <Route path="/contact" element={<DesignedPage slug="contact" />} />
+              <Route path="/posters" element={<PostersPage />} />
               <Route path="/page/:slug" element={<PublicPage />} />
               <Route path="/gallery" element={<GalleryPage />} />
               <Route path="/shop" element={<ShopPage />} />

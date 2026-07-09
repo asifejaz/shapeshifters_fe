@@ -10,53 +10,36 @@ export default function InstagramFeed({ title = 'Instagram Feed', limit = 6, com
     let active = true;
     api.get(`/public/instagram-feed?limit=${limit}`)
       .then((res) => {
-        if (!active) return;
-        setItems(res.data?.items || []);
+        if (active) setItems(res.data?.items || []);
+      })
+      .catch(() => {
+        if (active) setItems([]);
       })
       .finally(() => {
-        if (!active) return;
-        setLoading(false);
+        if (active) setLoading(false);
       });
-
-    return () => {
-      active = false;
-    };
+    return () => { active = false; };
   }, [limit]);
 
   const hasItems = useMemo(() => items.length > 0, [items]);
 
   if (loading) {
-    return (
-      <div className="bg-[oklch(0.12_0.01_40/0.6)] border border-[var(--forge-border)] rounded-xl p-6">
-        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[var(--forge-primary)] mx-auto" />
-      </div>
-    );
+    return <div className="border border-ink/10 bg-paper-dim p-6"><div className="mx-auto h-6 w-6 animate-spin rounded-full border-b-2 border-ember" /></div>;
   }
 
   if (!hasItems) return null;
 
   return (
-    <section className="bg-[oklch(0.12_0.01_40/0.6)] border border-[var(--forge-border)] rounded-xl p-6">
-      <div className="flex items-center gap-2 mb-4">
-        <Camera className="w-5 h-5 text-[var(--forge-primary)]" />
-        <h3 className="text-xl font-bold uppercase" style={{ fontFamily: 'Orbitron, system-ui' }}>{title}</h3>
+    <section className="border border-ink/10 bg-paper p-6">
+      <div className="mb-5 flex items-center gap-3 border-b border-ink/10 pb-4">
+        <Camera className="h-5 w-5 text-ember" />
+        <h3 className="font-display text-3xl uppercase leading-none">{title}</h3>
       </div>
-
-      <div className={`grid ${compact ? 'grid-cols-2 gap-3' : 'grid-cols-2 sm:grid-cols-3 gap-4'}`}>
+      <div className={`grid ${compact ? 'grid-cols-2 gap-3' : 'grid-cols-2 gap-4 sm:grid-cols-3'}`}>
         {items.map((item) => (
-          <a
-            key={item.id}
-            href={item.permalink}
-            target="_blank"
-            rel="noreferrer"
-            className="group relative overflow-hidden rounded-lg border border-[var(--forge-border)] hover:border-[var(--forge-primary)] transition-colors"
-          >
-            <img src={item.image_url} alt={item.caption || 'Instagram post'} className="w-full aspect-square object-cover group-hover:scale-105 transition-transform duration-300" />
-            {item.media_type === 'VIDEO' && (
-              <div className="absolute inset-0 flex items-center justify-center bg-black/20">
-                <PlayCircle className="w-8 h-8 text-white drop-shadow" />
-              </div>
-            )}
+          <a key={item.id} href={item.permalink} target="_blank" rel="noreferrer" className="group relative overflow-hidden bg-ink ring-1 ring-ink/10">
+            <img src={item.image_url} alt={item.caption || 'Instagram post'} className="aspect-square w-full object-cover grayscale transition duration-500 group-hover:scale-105 group-hover:grayscale-0" />
+            {item.media_type === 'VIDEO' && <div className="absolute inset-0 grid place-items-center bg-ink/25"><PlayCircle className="h-8 w-8 text-paper drop-shadow" /></div>}
           </a>
         ))}
       </div>
