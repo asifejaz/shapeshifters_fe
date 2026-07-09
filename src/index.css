@@ -1,0 +1,134 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+/* Forge theme variables */
+:root {
+  --forge-bg: oklch(0.13 0.02 30);
+  --forge-fg: oklch(0.96 0.01 60);
+  --forge-card: oklch(0.17 0.025 30);
+  --forge-card-fg: oklch(0.96 0.01 60);
+  --forge-primary: oklch(0.68 0.22 38);
+  --forge-primary-fg: oklch(0.12 0.02 30);
+  --forge-muted: oklch(0.7 0.02 50);
+  --forge-border: oklch(0.28 0.04 35);
+  --forge-accent: oklch(0.6 0.25 25);
+  --forge-ember: oklch(0.7 0.24 40);
+  --gradient-forge: linear-gradient(135deg, oklch(0.68 0.22 38), oklch(0.55 0.24 25));
+  --shadow-ember: 0 10px 40px -10px oklch(0.65 0.25 30 / 0.5);
+  --shadow-glow: 0 0 30px oklch(0.7 0.24 40 / 0.4);
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Public site forge theme */
+.forge-theme {
+  font-family: 'Rajdhani', system-ui, sans-serif;
+  background-color: var(--forge-bg);
+  background-image:
+    radial-gradient(ellipse at top, oklch(0.25 0.08 35 / 0.4), transparent 60%),
+    linear-gradient(180deg, oklch(0.13 0.02 30), oklch(0.1 0.015 25));
+  background-attachment: fixed;
+  color: var(--forge-fg);
+  min-height: 100vh;
+}
+
+.forge-theme h1,
+.forge-theme h2,
+.forge-theme h3,
+.forge-theme h4 {
+  font-family: 'Orbitron', system-ui, sans-serif;
+  letter-spacing: 0.02em;
+}
+
+.text-gradient-forge {
+  background: var(--gradient-forge);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.bg-forge {
+  background: var(--gradient-forge);
+}
+
+.shadow-ember {
+  box-shadow: var(--shadow-ember);
+}
+
+.shadow-glow {
+  box-shadow: var(--shadow-glow);
+}
+
+.grid-lines {
+  background-image:
+    linear-gradient(oklch(0.7 0.2 35 / 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, oklch(0.7 0.2 35 / 0.06) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+@keyframes pulse-ember {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.05); }
+}
+.animate-pulse-ember { animation: pulse-ember 3s ease-in-out infinite; }
+
+@keyframes flicker {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.85; }
+}
+.animate-flicker { animation: flicker 2.5s ease-in-out infinite; }
+
+/* TipTap editor styles */
+.tiptap p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: #9ca3af;
+  pointer-events: none;
+  height: 0;
+}
+
+.tiptap {
+  min-height: 300px;
+}
+
+.tiptap:focus {
+  outline: none;
+}
+
+.tiptap img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+  margin: 1rem 0;
+}
+
+.tiptap img.ProseMirror-selectednode {
+  outline: 2px solid #ea580c;
+  border-radius: 0.5rem;
+}
+
+.tiptap blockquote {
+  border-left: 3px solid #e5e7eb;
+  padding-left: 1rem;
+  margin-left: 0;
+  color: #6b7280;
+}
+
+.tiptap pre {
+  background: #1f2937;
+  color: #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  overflow-x: auto;
+}
+
+.tiptap hr {
+  border: none;
+  border-top: 2px solid #e5e7eb;
+  margin: 1.5rem 0;
+}
