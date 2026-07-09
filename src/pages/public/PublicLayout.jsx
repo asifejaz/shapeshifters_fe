@@ -3,6 +3,7 @@ import { Link, Outlet, useLocation } from 'react-router-dom';
 import api from '../../api';
 import { Menu, X, Shield, MapPin, Phone, ShoppingBag } from 'lucide-react';
 import logo from '../../assets/logo.webp';
+import { whatsappUrl } from '../../utils/whatsapp';
 
 const SiteContext = createContext(null);
 export const useSiteData = () => useContext(SiteContext);
@@ -189,10 +190,13 @@ export default function PublicLayout() {
                   <div key={branch.id} className="text-xs leading-relaxed text-ink-muted">
                     <p className="font-semibold uppercase text-ink">{branch.name}</p>
                     {branch.address && <p className="mt-2 flex gap-2"><MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-ember" />{branch.address}</p>}
-                    {branch.phone && <p className="mt-1 flex gap-2"><Phone className="h-3.5 w-3.5 shrink-0 text-ember" />{branch.phone}</p>}
+                    {branch.phone && <a href={whatsappUrl(branch.phone)} target="_blank" rel="noreferrer" className="mt-1 flex gap-2 hover:text-ember"><Phone className="h-3.5 w-3.5 shrink-0 text-ember" />{branch.phone}</a>}
                   </div>
                 )) : (
-                  <div className="text-xs leading-relaxed text-ink-muted">{settings.site_address || 'Wah Cantt, Pakistan'}<br />{settings.site_phone || ''}</div>
+                  <div className="text-xs leading-relaxed text-ink-muted">
+                    {settings.site_address || 'Wah Cantt, Pakistan'}<br />
+                    {settings.site_phone ? <a href={whatsappUrl(settings.site_phone)} target="_blank" rel="noreferrer" className="hover:text-ember">{settings.site_phone}</a> : ''}
+                  </div>
                 )}
               </div>
             </div>

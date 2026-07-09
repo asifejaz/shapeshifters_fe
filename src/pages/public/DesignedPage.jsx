@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import api from '../../api';
 import ContactForm from '../../components/ContactForm';
 import { useSiteData } from './PublicLayout';
+import { whatsappUrl } from '../../utils/whatsapp';
 
 const programs = [
   ['01', 'Strength Training', 'Power & Muscle', 'Focused resistance training designed to build foundational strength and muscle mass through periodized programming.'],
@@ -154,7 +155,7 @@ function ContactFallback({ branches }) {
 
           <div className="space-y-6">
             <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-ember">Visit Us</span>
-            {branches.map((branch, index) => <div key={branch.id} className="border-t border-ink/10 pt-6"><div className="flex items-baseline justify-between font-mono text-[10px] uppercase tracking-[0.3em] text-ink/40"><span>No {String(index + 1).padStart(2, '0')}</span><span>Wah Cantt</span></div><h4 className="mt-2 font-display text-2xl uppercase">{branch.name}</h4><p className="mt-2 max-w-sm text-sm text-ink-muted">{branch.address}</p>{branch.phone && <a href={`tel:${branch.phone.replace(/\D/g, '')}`} className="mt-3 inline-block font-mono text-xs font-semibold hover:text-ember">{branch.phone}</a>}</div>)}
+            {branches.map((branch, index) => <div key={branch.id} className="border-t border-ink/10 pt-6"><div className="flex items-baseline justify-between font-mono text-[10px] uppercase tracking-[0.3em] text-ink/40"><span>No {String(index + 1).padStart(2, '0')}</span><span>Wah Cantt</span></div><h4 className="mt-2 font-display text-2xl uppercase">{branch.name}</h4><p className="mt-2 max-w-sm text-sm text-ink-muted">{branch.address}</p>{branch.phone && <a href={whatsappUrl(branch.phone)} target="_blank" rel="noreferrer" className="mt-3 inline-block font-mono text-xs font-semibold hover:text-ember">{branch.phone}</a>}</div>)}
           </div>
         </div>
         <div className="bg-paper-dim p-8 md:p-10"><span className="font-mono text-[10px] uppercase tracking-[0.3em] text-ember">Send us a message</span><h3 className="mt-3 mb-8 font-display text-3xl uppercase leading-none">Get in touch</h3><ContactForm inline /></div>
@@ -168,7 +169,7 @@ function BranchCallout({ branches }) {
     <div className="mt-12 border border-ink/10 bg-paper-dim p-8 md:p-12">
       <div className="grid grid-cols-1 gap-8 md:grid-cols-[2fr_1fr] md:items-center">
         <div><span className="font-mono text-[10px] uppercase tracking-[0.3em] text-ember">Current rates</span><h3 className="mt-3 font-display text-3xl uppercase md:text-4xl">Visit any branch for live pricing & offers.</h3><p className="mt-4 max-w-xl text-sm text-ink-muted">We keep pricing personal so you always get the current promotion or family rate that applies to you.</p></div>
-        <div className="flex flex-col gap-3 font-mono text-[11px] uppercase tracking-[0.22em]">{branches.slice(0, 2).map((branch) => <a key={branch.id} href={`tel:${(branch.phone || '').replace(/\D/g, '')}`} className="border border-ink/20 bg-paper px-5 py-4 hover:border-ember hover:text-ember">{branch.name} · {branch.phone}</a>)}<Link to="/contact" className="bg-ink px-5 py-4 text-center text-paper hover:bg-ember">Send a message →</Link></div>
+        <div className="flex flex-col gap-3 font-mono text-[11px] uppercase tracking-[0.22em]">{branches.slice(0, 2).map((branch) => <a key={branch.id} href={whatsappUrl(branch.phone)} target="_blank" rel="noreferrer" className="border border-ink/20 bg-paper px-5 py-4 hover:border-ember hover:text-ember">{branch.name} · {branch.phone}</a>)}<Link to="/contact" className="bg-ink px-5 py-4 text-center text-paper hover:bg-ember">Send a message →</Link></div>
       </div>
     </div>
   );
