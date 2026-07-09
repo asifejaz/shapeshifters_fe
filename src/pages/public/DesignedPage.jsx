@@ -58,7 +58,7 @@ export default function DesignedPage({ slug }) {
   const [loading, setLoading] = useState(true);
   const meta = defaults[slug] || defaults.programs;
   const hasCmsContent = Boolean(page?.content?.trim());
-  const showCmsContent = hasCmsContent && slug !== 'trainers';
+  const showCmsContent = hasCmsContent && !['programs', 'trainers'].includes(slug);
 
   useEffect(() => {
     setLoading(true);
@@ -80,7 +80,7 @@ export default function DesignedPage({ slug }) {
         <section className="mx-auto max-w-4xl px-6 pb-20"><div className="ss-prose" dangerouslySetInnerHTML={{ __html: page.content }} /></section>
       ) : null}
 
-      {slug === 'programs' && !hasCmsContent && <ProgramsFallback />}
+      {slug === 'programs' && <ProgramsFallback />}
       {slug === 'trainers' && <TrainersFallback />}
       {slug === 'pricing' && !hasCmsContent && <PricingFallback branches={branches} />}
       {slug === 'contact' && <ContactFallback branches={branches} />}

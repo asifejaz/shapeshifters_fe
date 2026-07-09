@@ -56,6 +56,7 @@ const cmsNav = [
   { path: '/cms/pages', label: 'Pages', icon: FileText },
   { path: '/cms/menus', label: 'Menus & Links', icon: LinkIcon },
   { path: '/cms/sliders', label: 'Hero Sliders', icon: Image },
+  { path: '/cms/posters', label: 'Posters', icon: Image },
   { path: '/cms/gallery', label: 'Photo Gallery', icon: Image },
   { path: '/cms/settings', label: 'Site Settings', icon: Settings },
 ];

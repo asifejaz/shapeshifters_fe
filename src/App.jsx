@@ -18,6 +18,7 @@ const CmsPageForm = lazy(() => import('./pages/cms/CmsPageForm'));
 const CmsMenus = lazy(() => import('./pages/cms/CmsMenus'));
 const CmsSettings = lazy(() => import('./pages/cms/CmsSettings'));
 const CmsSliders = lazy(() => import('./pages/cms/CmsSliders'));
+const CmsPosters = lazy(() => import('./pages/cms/CmsPosters'));
 const AdminUsers = lazy(() => import('./pages/AdminUsers'));
 const Gallery = lazy(() => import('./pages/Gallery'));
 const ProductCategories = lazy(() => import('./pages/shop/ProductCategories'));
@@ -125,6 +126,7 @@ function App() {
             <Route path="/cms/menus" element={<ProtectedRoute><CmsMenus /></ProtectedRoute>} />
             <Route path="/cms/settings" element={<ProtectedRoute><CmsSettings /></ProtectedRoute>} />
             <Route path="/cms/sliders" element={<ProtectedRoute><CmsSliders /></ProtectedRoute>} />
+            <Route path="/cms/posters" element={<ProtectedRoute><CmsPosters /></ProtectedRoute>} />
             <Route path="/cms/gallery" element={<ProtectedRoute><Gallery /></ProtectedRoute>} />
 
             {/* Shop Admin */}
