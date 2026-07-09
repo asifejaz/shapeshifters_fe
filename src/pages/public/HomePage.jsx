@@ -59,8 +59,8 @@ export default function HomePage() {
 
   const stats = useMemo(() => [1, 2]
     .map((n, i) => ({
-      label: settings[`stat_${n}_label`] || (i === 0 ? 'Registered Athletes' : 'Client Retention Rate'),
-      value: settings[`stat_${n}_value`] || (i === 0 ? '12K+' : '98%'),
+      label: i === 0 ? 'Members' : (settings[`stat_${n}_label`] || 'Client Retention Rate'),
+      value: i === 0 ? '2000+' : (settings[`stat_${n}_value`] || '98%'),
       no: `0${n}`,
     })), [settings]);
 
