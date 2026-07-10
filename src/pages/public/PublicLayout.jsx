@@ -89,12 +89,33 @@ export default function PublicLayout() {
   const settings = siteData?.settings || {};
   const headerItems = ensurePostersItem(siteData?.menus?.header?.items?.length ? siteData.menus.header.items : fallbackLinks);
   const footerItems = ensurePostersItem(siteData?.menus?.footer?.items?.length ? siteData.menus.footer.items : headerItems);
+  const analyticsId = settings.google_analytics_id?.trim();
 
   const isActivePath = (item) => {
     const url = resolvePublicUrl(item);
     if (url === '/') return location.pathname === '/';
     return location.pathname === url || location.pathname.startsWith(`${url}/`);
   };
+
+  useEffect(() => {
+    if (!analyticsId) return;
+
+    window.dataLayer = window.dataLayer || [];
+    window.gtag = window.gtag || function gtag() { window.dataLayer.push(arguments); };
+
+    if (!document.querySelector(`script[data-ga-id="${analyticsId}"]`)) {
+      const script = document.createElement('script');
+      script.async = true;
+      script.src = `https://www.googletagmanager.com/gtag/js?id=${analyticsId}`;
+      script.dataset.gaId = analyticsId;
+      document.head.appendChild(script);
+      window.gtag('js', new Date());
+    }
+
+    window.gtag('config', analyticsId, {
+      page_path: `${location.pathname}${location.search}`,
+    });
+  }, [analyticsId, location.pathname, location.search]);
 
   if (loading) {
     return (
@@ -109,12 +130,6 @@ export default function PublicLayout() {
 
   return (
     <SiteContext.Provider value={siteData}>
-      {settings.google_analytics_id && (
-        <>
-          <script async src={`https://www.googletagmanager.com/gtag/js?id=${settings.google_analytics_id}`} />
-          <script dangerouslySetInnerHTML={{ __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${settings.google_analytics_id}');` }} />
-        </>
-      )}
       {settings.recaptcha_site_key && <script src={`https://www.google.com/recaptcha/api.js?render=${settings.recaptcha_site_key}`} async defer />}
 
       <div className="ss-theme flex min-h-screen flex-col bg-paper text-ink">
