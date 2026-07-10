@@ -43,13 +43,13 @@ export default function PostersPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {posters.map((poster, i) => (
+            {posters.map((poster) => (
               <article key={poster.id} className="group cursor-pointer" onClick={() => setSelected(poster)}>
                 <div className="relative aspect-[3/4] overflow-hidden bg-ink ring-1 ring-ink/10">
                   <img src={poster.image_url} alt={poster.title} loading="lazy" className="h-full w-full object-cover transition-transform duration-[900ms] group-hover:scale-[1.02]" />
                   {poster.series && <span className="absolute top-3 right-3 bg-paper/90 px-2 py-1 font-mono text-[9px] uppercase tracking-[0.22em] text-ink opacity-0 transition-all group-hover:bg-ember group-hover:text-paper group-hover:opacity-100">{poster.series}</span>}
                 </div>
-                <div className="mt-4 flex items-baseline justify-between gap-4 font-mono text-[10px] uppercase tracking-[0.22em] text-ink/50"><span>No {String(i + 1).padStart(2, '0')}</span><span className="text-right text-ink">{poster.title}</span></div>
+                <div className="mt-4 font-mono text-[10px] uppercase tracking-[0.22em] text-ink">{poster.title}</div>
                 {poster.quote && <p className="mt-2 max-w-[38ch] text-xs italic text-ink-muted">“{poster.quote}”</p>}
               </article>
             ))}

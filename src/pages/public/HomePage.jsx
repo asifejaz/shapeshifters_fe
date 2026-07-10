@@ -77,19 +77,24 @@ export default function HomePage() {
     image: pillarImages[i],
   })), [settings]);
 
-  const posterWallItems = posters.length > 0
-    ? posters.slice(0, 5).map((poster, index) => ({
-      no: `№ ${String(index + 1).padStart(2, '0')}`,
+  const posterWallItems = useMemo(() => {
+    if (posters.length > 0) {
+      return [...posters]
+        .sort(() => Math.random() - 0.5)
+        .slice(0, 5)
+        .map((poster) => ({
       title: poster.title,
       series: poster.series || 'Poster Series',
       quote: poster.quote,
       imageUrl: poster.image_url,
-    }))
-    : ['Mind Series', 'Iron Series', 'Discipline Series', 'Grit Series', 'Ritual Series'].map((series, index) => ({
-      no: `№ ${String(index + 1).padStart(2, '0')}`,
+        }));
+    }
+
+    return ['Mind Series', 'Iron Series', 'Discipline Series', 'Grit Series', 'Ritual Series'].map((series) => ({
       title: 'Coming Soon',
       series,
     }));
+  }, [posters]);
 
   return (
     <>
@@ -208,7 +213,7 @@ export default function HomePage() {
           </div>
           <div className="-mx-6 flex snap-x snap-mandatory gap-6 overflow-x-auto px-6 pb-4">
             {posterWallItems.map((poster) => (
-              <Link key={`${poster.no}-${poster.title}`} to="/posters" className="group w-[280px] shrink-0 snap-start md:w-[340px]">
+              <Link key={`${poster.series}-${poster.title}`} to="/posters" className="group w-[280px] shrink-0 snap-start md:w-[340px]">
                 <div className="relative aspect-[3/4] overflow-hidden bg-ink-muted ring-1 ring-paper/5 transition-transform duration-500 group-hover:-translate-y-1">
                   {poster.imageUrl ? (
                     <img src={poster.imageUrl} alt={poster.title} loading="lazy" className="h-full w-full object-cover" />
@@ -223,9 +228,8 @@ export default function HomePage() {
                     {poster.series}
                   </span>
                 </div>
-                <div className="mt-4 flex items-baseline justify-between gap-3 font-mono text-[10px] uppercase tracking-[0.22em] text-paper/50">
-                  <span>{poster.no}</span>
-                  <span className="text-right text-paper/80">{poster.title}</span>
+                <div className="mt-4 font-mono text-[10px] uppercase tracking-[0.22em] text-paper/80">
+                  {poster.title}
                 </div>
                 {poster.quote && <p className="mt-2 max-w-[38ch] text-xs italic text-paper/60">“{poster.quote}”</p>}
               </Link>
