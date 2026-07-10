@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Shield, Lock, Mail } from 'lucide-react';
+import { ArrowRight, Lock, Mail, Shield } from 'lucide-react';
 import logo from '../assets/logo.webp';
+import heroImage from '../assets/new-design/hero-athlete.jpg';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -27,75 +28,104 @@ export default function Login() {
   };
 
   return (
-    <div className="forge-theme flex items-center justify-center px-4 py-20">
-      <div className="mx-auto max-w-md w-full">
-        <div className="text-center">
-          <div className="relative inline-block">
-            <div className="absolute inset-0 rounded-full bg-[var(--forge-primary)] opacity-40 blur-2xl animate-pulse-ember" />
-            <img src={logo} alt="" className="relative h-20 w-20 mx-auto rounded-full ring-2 ring-[var(--forge-primary)]" style={{ ringColor: 'oklch(0.68 0.22 38 / 0.6)' }} />
-          </div>
-          <h1 className="mt-6 text-3xl font-black uppercase tracking-wider" style={{ fontFamily: 'Orbitron, system-ui' }}>
-            Admin <span className="text-gradient-forge">Login</span>
-          </h1>
-          <p className="mt-2 text-sm text-[var(--forge-muted)]">
-            Restricted access. Authorized administrators only.
-          </p>
-        </div>
-
-        <form onSubmit={handleSubmit} className="mt-10 rounded-xl border border-[var(--forge-border)] p-8 shadow-ember backdrop-blur" style={{ background: 'oklch(0.17 0.025 30 / 0.8)' }}>
-          {error && (
-            <div className="mb-4 p-3 rounded-lg text-sm font-medium" style={{ background: 'oklch(0.55 0.24 25 / 0.15)', color: 'oklch(0.75 0.2 25)', border: '1px solid oklch(0.55 0.24 25 / 0.3)' }}>
-              {error}
-            </div>
-          )}
-
-          <div className="space-y-4">
+    <div className="ss-theme min-h-screen bg-paper text-ink">
+      <div className="grid min-h-screen grid-cols-1 lg:grid-cols-[1.05fr_0.95fr]">
+        <section className="relative hidden overflow-hidden bg-ink text-paper lg:block">
+          <img src={heroImage} alt="Shape Shifters training" className="absolute inset-0 h-full w-full object-cover opacity-65 grayscale" />
+          <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/35 to-ink/10" />
+          <div className="relative flex h-full flex-col justify-between p-12">
+            <Link to="/" className="inline-flex w-fit items-center gap-3 font-mono text-[10px] font-semibold uppercase tracking-[0.28em] text-paper/70 transition hover:text-ember">
+              <span className="h-px w-10 bg-paper/40" /> Back to website
+            </Link>
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-[var(--forge-fg)] mb-2" style={{ fontFamily: 'Orbitron, system-ui' }}>Email</label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--forge-muted)]" />
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-9 pr-4 py-2.5 rounded-lg border border-[var(--forge-border)] outline-none text-[var(--forge-fg)] placeholder-[var(--forge-muted)] focus:border-[var(--forge-primary)] transition-colors"
-                  style={{ background: 'oklch(0.22 0.02 30 / 0.4)' }}
-                  required
-                />
+              <span className="font-mono text-[10px] uppercase tracking-[0.32em] text-ember">Admin Console</span>
+              <h1 className="mt-5 max-w-xl font-display text-7xl leading-[0.84] uppercase md:text-8xl">
+                Built For<br />The Operators.
+              </h1>
+              <p className="mt-6 max-w-md text-sm leading-relaxed text-paper/65">
+                Restricted dashboard access for Shape Shifters staff. Manage members, payments, CMS, reports, and daily operations from one secure console.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section className="relative flex min-h-screen items-center justify-center overflow-hidden px-5 py-12 md:px-10">
+          <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-ember/15 blur-3xl" />
+          <div className="absolute -bottom-32 -left-24 h-80 w-80 rounded-full bg-ink/10 blur-3xl" />
+
+          <div className="relative w-full max-w-md">
+            <div className="mb-10 flex items-center justify-between gap-4 border-b border-ink/10 pb-6">
+              <Link to="/" aria-label="Shape Shifters home">
+                <img src={logo} alt="Shape Shifters" className="h-14 w-auto object-contain" />
+              </Link>
+              <div className="grid h-11 w-11 place-items-center bg-ink text-paper">
+                <Shield className="h-5 w-5" />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-[var(--forge-fg)] mb-2" style={{ fontFamily: 'Orbitron, system-ui' }}>Password</label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--forge-muted)]" />
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-9 pr-4 py-2.5 rounded-lg border border-[var(--forge-border)] outline-none text-[var(--forge-fg)] placeholder-[var(--forge-muted)] focus:border-[var(--forge-primary)] transition-colors"
-                  style={{ background: 'oklch(0.22 0.02 30 / 0.4)' }}
-                  required
-                />
-              </div>
+              <span className="font-mono text-[10px] uppercase tracking-[0.32em] text-ember">Secure Access</span>
+              <h2 className="mt-3 font-display text-6xl leading-[0.85] uppercase md:text-7xl">Admin Login</h2>
+              <p className="mt-5 max-w-sm text-sm leading-relaxed text-ink-muted">
+                Sign in with your authorized staff account to continue.
+              </p>
             </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-forge text-[var(--forge-primary-fg)] shadow-ember py-3 rounded-lg font-bold uppercase tracking-widest hover:opacity-90 disabled:opacity-50 transition-opacity flex items-center justify-center gap-2"
-              style={{ fontFamily: 'Orbitron, system-ui' }}
-            >
-              <Shield className="w-4 h-4" />
-              {loading ? 'Authenticating...' : 'Enter Console'}
-            </button>
-          </div>
+            <form onSubmit={handleSubmit} className="mt-10 border border-ink/10 bg-paper-dim p-6 shadow-ember md:p-8">
+              {error && (
+                <div className="mb-6 border border-ember/40 bg-ember/10 p-4 text-sm font-semibold text-ink">
+                  {error}
+                </div>
+              )}
 
-          <div className="mt-6 text-center text-xs text-[var(--forge-muted)]">
-            Interested in joining?{' '}
-            <Link to="/page/contact" className="text-[var(--forge-primary)] hover:underline">Contact us</Link>
+              <div className="space-y-6">
+                <div>
+                  <label className="block font-mono text-[10px] font-semibold uppercase tracking-[0.28em] text-ink/60">Email</label>
+                  <div className="mt-3 flex items-center border-b border-ink/20 bg-transparent transition-colors focus-within:border-ember">
+                    <Mail className="mr-3 h-4 w-4 text-ink/40" />
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      autoComplete="username"
+                      className="w-full bg-transparent py-3 text-sm text-ink outline-none"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block font-mono text-[10px] font-semibold uppercase tracking-[0.28em] text-ink/60">Password</label>
+                  <div className="mt-3 flex items-center border-b border-ink/20 bg-transparent transition-colors focus-within:border-ember">
+                    <Lock className="mr-3 h-4 w-4 text-ink/40" />
+                    <input
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      autoComplete="current-password"
+                      className="w-full bg-transparent py-3 text-sm text-ink outline-none"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="group inline-flex w-full items-center justify-between bg-ink px-6 py-4 font-mono text-[11px] font-semibold uppercase tracking-[0.24em] text-paper transition-colors hover:bg-ember disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  <span>{loading ? 'Authenticating' : 'Enter Console'}</span>
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </button>
+              </div>
+
+              <div className="mt-6 flex items-center justify-between gap-4 border-t border-ink/10 pt-5 font-mono text-[10px] uppercase tracking-[0.22em] text-ink/45">
+                <span>Authorized Staff</span>
+                <Link to="/contact" className="transition hover:text-ember">Contact</Link>
+              </div>
+            </form>
           </div>
-        </form>
+        </section>
       </div>
     </div>
   );
