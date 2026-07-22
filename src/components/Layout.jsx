@@ -179,39 +179,45 @@ export default function Layout({ children }) {
           </div>
         </nav>
 
-        <div className="p-4 border-t border-gray-700 shrink-0">
-          <div className="flex items-center justify-between">
-            <div className="text-sm">
-              <p className="font-medium text-white">{user?.name}</p>
-              <p className="text-gray-400 text-xs">{user?.email}</p>
-              <p className="text-[10px] mt-0.5">
-                <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase ${isSuperAdmin ? 'bg-red-600 text-white' : 'bg-orange-600/20 text-orange-400'}`}>
-                  {user?.role?.replace('_', ' ') || 'admin'}
-                </span>
-                {user?.branch && <span className="text-gray-500 ml-1.5">{user.branch.name}</span>}
-              </p>
-            </div>
-            <button
-              onClick={handleLogout}
-              className="text-gray-400 hover:text-red-400 transition-colors"
-              title="Logout"
-            >
-              <LogOut className="w-5 h-5" />
-            </button>
-          </div>
-        </div>
       </aside>
 
       {/* Main content */}
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="h-16 bg-white border-b border-gray-200 flex items-center px-4 lg:px-6 sticky top-0 z-30">
-          <button
-            className="lg:hidden mr-3 text-gray-600"
-            onClick={() => setSidebarOpen(true)}
-          >
-            <Menu className="w-6 h-6" />
-          </button>
-          <h1 className="text-lg font-semibold text-gray-800">{currentLabel}</h1>
+        <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between gap-3 px-4 lg:px-6 sticky top-0 z-30">
+          <div className="flex items-center min-w-0">
+            <button
+              className="lg:hidden mr-3 text-gray-600"
+              onClick={() => setSidebarOpen(true)}
+            >
+              <Menu className="w-6 h-6" />
+            </button>
+            <h1 className="text-lg font-semibold text-gray-800 truncate">{currentLabel}</h1>
+          </div>
+
+          <div className="flex items-center gap-3 shrink-0">
+            <div className="hidden sm:block text-right leading-tight">
+              <p className="text-sm font-semibold text-gray-800">{user?.name}</p>
+              <p className="text-xs text-gray-500">{user?.email}</p>
+              <p className="mt-1 text-[10px] text-gray-500">
+                <span className={`px-1.5 py-0.5 rounded font-bold uppercase ${isSuperAdmin ? 'bg-red-100 text-red-700' : 'bg-orange-100 text-orange-700'}`}>
+                  {user?.role?.replace('_', ' ') || 'admin'}
+                </span>
+                {user?.branch && <span className="ml-1.5">{user.branch.name}</span>}
+              </p>
+            </div>
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-900 text-white" title={user?.name || 'User'}>
+              <UserCog className="h-4 w-4" />
+            </div>
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 text-gray-500 transition-colors hover:border-red-200 hover:bg-red-50 hover:text-red-600"
+              title="Logout"
+              aria-label="Logout"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
+          </div>
         </header>
         <main className="flex-1 p-4 lg:p-6 overflow-auto">{children}</main>
       </div>
