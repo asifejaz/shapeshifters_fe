@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import api from '../api';
-import { ArrowLeft, Edit, RotateCcw, ScanLine, CreditCard, User, UserX, Phone, Mail, MapPin, Calendar, Trash2, Save, X } from 'lucide-react';
+import { ArrowLeft, Edit, RotateCcw, ScanLine, CreditCard, User, UserX, Phone, Mail, MapPin, Calendar, History, Trash2, Save, X } from 'lucide-react';
 import { formatDisplayDate, formatDisplayDateTime } from '../utils/dateFormat';
 import { toTitleCaseDisplay } from '../utils/textFormat';
 
@@ -54,6 +54,71 @@ const calculateNextDueDate = (subscriptionEnd, fallbackDate) => {
   const due = new Date(year, month - 1, day);
   due.setDate(due.getDate() + 1);
   return toDateInputString(due);
+};
+
+const activityFieldLabels = {
+  member_id: 'Member ID',
+  name: 'Name',
+  father_husband_name: 'Father/Husband Name',
+  email: 'Email',
+  phone: 'Phone',
+  cnic: 'CNIC',
+  gender: 'Gender',
+  session: 'Session',
+  date_of_birth: 'Date of Birth',
+  address: 'Address',
+  branch_id: 'Branch ID',
+  notes: 'Notes',
+  biometric_id: 'Biometric ID',
+  fee_plan_id: 'Fee Plan',
+  fee_amount: 'Fee Amount',
+  registration_fee: 'Registration Fee',
+  security_deposit: 'Security Deposit',
+  joining_date: 'Joining Date',
+  subscription_start: 'Subscription Start',
+  subscription_end: 'Subscription End',
+  status: 'Status',
+  amount: 'Amount',
+  type: 'Payment Type',
+  payment_method: 'Payment Method',
+  reference_number: 'Reference Number',
+  payment_date: 'Payment Date',
+  period_start: 'Period Start',
+  period_end: 'Period End',
+};
+
+const dateActivityFields = new Set([
+  'date_of_birth',
+  'joining_date',
+  'subscription_start',
+  'subscription_end',
+  'payment_date',
+  'period_start',
+  'period_end',
+]);
+
+const moneyActivityFields = new Set(['fee_amount', 'registration_fee', 'security_deposit', 'amount']);
+
+const formatActivityValue = (field, value, feePlans) => {
+  if (value === null || value === undefined || value === '') return '—';
+  if (field === 'fee_plan_id') {
+    return feePlans.find((plan) => plan.id === Number(value))?.name || `Plan #${value}`;
+  }
+  if (dateActivityFields.has(field)) return formatDisplayDate(value);
+  if (moneyActivityFields.has(field)) return `Rs. ${Number(value).toLocaleString()}`;
+  if (typeof value === 'boolean') return value ? 'Yes' : 'No';
+  if (['status', 'gender', 'session', 'type', 'payment_method'].includes(field)) {
+    return String(value).replaceAll('_', ' ').replace(/\b\w/g, (letter) => letter.toUpperCase());
+  }
+  return String(value);
+};
+
+const activityChanges = (activity) => {
+  const oldValues = activity.old_values || {};
+  const newValues = activity.new_values || {};
+  return [...new Set([...Object.keys(oldValues), ...Object.keys(newValues)])]
+    .filter((field) => field !== 'updated_at')
+    .map((field) => ({ field, oldValue: oldValues[field], newValue: newValues[field] }));
 };
 
 export default function SubscriberDetail() {
@@ -499,6 +564,79 @@ export default function SubscriberDetail() {
           </div>
         </div>
       )}
+
+      {/* Change history */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+          <History className="w-5 h-5 text-orange-500" /> Change History
+        </h3>
+        {sub.activity_logs?.length > 0 ? (
+          <div className="space-y-3">
+            {sub.activity_logs.map((activity) => {
+              const changes = activityChanges(activity);
+              const categoryClass = activity.category === 'payment'
+                ? 'bg-green-100 text-green-700'
+                : activity.category === 'fee'
+                  ? 'bg-blue-100 text-blue-700'
+                  : activity.category === 'membership'
+                    ? 'bg-red-100 text-red-700'
+                    : 'bg-orange-100 text-orange-700';
+
+              return (
+                <div key={activity.id} className="rounded-lg border border-gray-200 p-4">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                    <div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="font-medium text-gray-800">{activity.description}</p>
+                        <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${categoryClass}`}>
+                          {activity.category}
+                        </span>
+                      </div>
+                      <p className="mt-1 text-xs text-gray-500">
+                        By {activity.user?.name || 'System'}
+                        {activity.user?.email && ` (${activity.user.email})`}
+                      </p>
+                    </div>
+                    <p className="shrink-0 text-xs text-gray-500">{formatDisplayDateTime(activity.created_at)}</p>
+                  </div>
+
+                  {changes.length > 0 && (
+                    <details className="mt-3 rounded-lg bg-gray-50 px-3 py-2">
+                      <summary className="cursor-pointer text-xs font-medium text-gray-600">
+                        View details ({changes.length} {changes.length === 1 ? 'field' : 'fields'})
+                      </summary>
+                      <div className="mt-3 space-y-2">
+                        {changes.map(({ field, oldValue, newValue }) => (
+                          <div key={field} className="grid gap-1 border-t border-gray-200 pt-2 text-xs sm:grid-cols-[150px_1fr]">
+                            <span className="font-medium text-gray-600">{activityFieldLabels[field] || field.replaceAll('_', ' ')}</span>
+                            <span className="text-gray-700">
+                              {oldValue !== undefined && newValue !== undefined ? (
+                                <>
+                                  <span className="text-gray-400 line-through">{formatActivityValue(field, oldValue, feePlans)}</span>
+                                  <span className="mx-2 text-gray-400">→</span>
+                                  <span className="font-medium">{formatActivityValue(field, newValue, feePlans)}</span>
+                                </>
+                              ) : newValue !== undefined ? (
+                                <span className="font-medium">{formatActivityValue(field, newValue, feePlans)}</span>
+                              ) : (
+                                <span className="text-gray-400 line-through">{formatActivityValue(field, oldValue, feePlans)}</span>
+                              )}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </details>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <p className="rounded-lg bg-gray-50 px-4 py-6 text-center text-sm text-gray-500">
+            No activity has been recorded for this subscriber yet.
+          </p>
+        )}
+      </div>
     </div>
   );
 }
