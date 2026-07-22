@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import api from '../api';
 import { ArrowLeft, Edit, RotateCcw, ScanLine, CreditCard, User, Phone, Mail, MapPin, Calendar, Trash2, Save, X } from 'lucide-react';
 import { formatDisplayDate, formatDisplayDateTime } from '../utils/dateFormat';
+import { toTitleCaseDisplay } from '../utils/textFormat';
 
 function DateField({ value, onChange, className, required }) {
   return (
@@ -228,7 +229,7 @@ export default function SubscriberDetail() {
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div>
-            <h2 className="text-xl font-semibold text-gray-800">{sub.name}</h2>
+            <h2 className="text-xl font-semibold text-gray-800">{toTitleCaseDisplay(sub.name)}</h2>
             <p className="text-sm text-gray-500 font-mono">{sub.member_id}</p>
           </div>
         </div>
@@ -333,8 +334,8 @@ export default function SubscriberDetail() {
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <h3 className="text-lg font-semibold text-gray-800 mb-4">Personal Details</h3>
           <div className="space-y-3">
-            <InfoRow icon={User} label="Full Name" value={sub.name} />
-            <InfoRow icon={User} label="Father/Husband" value={sub.father_husband_name} />
+            <InfoRow icon={User} label="Full Name" value={toTitleCaseDisplay(sub.name)} />
+            <InfoRow icon={User} label="Father/Husband" value={toTitleCaseDisplay(sub.father_husband_name)} />
             <InfoRow icon={Phone} label="Contact" value={sub.phone} />
             <InfoRow icon={Mail} label="Email" value={sub.email || '—'} />
             <InfoRow icon={CreditCard} label="CNIC" value={sub.cnic || '—'} />
@@ -382,7 +383,7 @@ export default function SubscriberDetail() {
             {sub.emergency_contacts.map((c) => (
               <div key={c.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                 <div>
-                  <p className="font-medium text-gray-700">{c.name}</p>
+                  <p className="font-medium text-gray-700">{toTitleCaseDisplay(c.name)}</p>
                   {c.relationship && <p className="text-xs text-gray-500">{c.relationship}</p>}
                 </div>
                 <a href={`tel:${c.phone}`} className="text-orange-600 font-medium text-sm">{c.phone}</a>

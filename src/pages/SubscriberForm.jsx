@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../api';
 import { Save, ArrowLeft, Plus, X } from 'lucide-react';
+import { toTitleCase } from '../utils/textFormat';
 
 const toDateInputValue = (value) => {
   if (!value) return '';
@@ -207,6 +208,14 @@ export default function SubscriberForm() {
     }));
   };
 
+  const updateNameField = (field, value) => {
+    setForm((prev) => ({ ...prev, [field]: toTitleCase(value) }));
+  };
+
+  const updateEmergencyNameField = (index, value) => {
+    updateEmergencyContact(index, 'name', toTitleCase(value));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
@@ -289,12 +298,12 @@ export default function SubscriberForm() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className={labelClass}>Full Name *</label>
-            <input type="text" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className={inputClass} required />
+            <input type="text" value={form.name} onChange={(e) => updateNameField('name', e.target.value)} className={inputClass} required />
             {errors.name && <p className={errorClass}>{errors.name[0]}</p>}
           </div>
           <div>
             <label className={labelClass}>Father/Husband Name</label>
-            <input type="text" value={form.father_husband_name} onChange={(e) => setForm({ ...form, father_husband_name: e.target.value })} className={inputClass} />
+            <input type="text" value={form.father_husband_name} onChange={(e) => updateNameField('father_husband_name', e.target.value)} className={inputClass} />
             {errors.father_husband_name && <p className={errorClass}>{errors.father_husband_name[0]}</p>}
           </div>
           <div>
@@ -463,7 +472,7 @@ export default function SubscriberForm() {
           <div key={index} className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-3">
             <div>
               <label className={labelClass}>Name</label>
-              <input type="text" value={contact.name} onChange={(e) => updateEmergencyContact(index, 'name', e.target.value)} className={inputClass} />
+              <input type="text" value={contact.name} onChange={(e) => updateEmergencyNameField(index, e.target.value)} className={inputClass} />
               {errors[`emergency_contacts.${index}.name`] && <p className={errorClass}>{errors[`emergency_contacts.${index}.name`][0]}</p>}
             </div>
             <div>

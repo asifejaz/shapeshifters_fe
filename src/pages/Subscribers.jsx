@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import api from '../api';
 import { Plus, Search, Eye, Edit, Trash2, CreditCard, X } from 'lucide-react';
 import { formatDisplayDate } from '../utils/dateFormat';
+import { toTitleCaseDisplay } from '../utils/textFormat';
 
 export default function Subscribers() {
   const [subscribers, setSubscribers] = useState([]);
@@ -54,9 +55,9 @@ export default function Subscribers() {
     fetchSubscribers();
   }, [page, filters]);
 
-  const fetchSubscribers = () => {
+  const fetchSubscribers = (targetPage = page) => {
     setLoading(true);
-    const params = { page, per_page: 100, search, ...filters };
+    const params = { page: targetPage, per_page: 100, search, ...filters };
     Object.keys(params).forEach((k) => !params[k] && delete params[k]);
     api.get('/subscribers', { params }).then((res) => {
       setSubscribers(res.data.data);
@@ -68,7 +69,7 @@ export default function Subscribers() {
   const handleSearch = (e) => {
     e.preventDefault();
     setPage(1);
-    fetchSubscribers();
+    fetchSubscribers(1);
   };
 
   const handleDelete = async (id) => {
@@ -224,7 +225,7 @@ export default function Subscribers() {
             <div>
               <h3 className="text-lg font-semibold text-gray-800">Add Payment / Renew</h3>
               <p className="text-sm text-gray-500">
-                {quickPaymentSubscriber.name} · {quickPaymentSubscriber.member_id}
+                {toTitleCaseDisplay(quickPaymentSubscriber.name)} · {quickPaymentSubscriber.member_id}
               </p>
             </div>
             <button
@@ -344,7 +345,7 @@ export default function Subscribers() {
                     <td className="py-3 px-4 font-mono text-xs">{sub.biometric_id || '-'}</td>
                     <td className="py-3 px-4">
                       <div>
-                        <p className="font-medium text-gray-800">{sub.name}</p>
+                        <p className="font-medium text-gray-800">{toTitleCaseDisplay(sub.name)}</p>
                         <p className="text-xs text-gray-400 capitalize">{sub.gender}</p>
                       </div>
                     </td>
