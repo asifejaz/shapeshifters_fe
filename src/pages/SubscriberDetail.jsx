@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import api from '../api';
-import { ArrowLeft, Edit, RotateCcw, ScanLine, CreditCard, User, Phone, Mail, MapPin, Calendar, Trash2, Save, X } from 'lucide-react';
+import { ArrowLeft, Edit, RotateCcw, ScanLine, CreditCard, User, UserX, Phone, Mail, MapPin, Calendar, Trash2, Save, X } from 'lucide-react';
 import { formatDisplayDate, formatDisplayDateTime } from '../utils/dateFormat';
 import { toTitleCaseDisplay } from '../utils/textFormat';
 
@@ -66,6 +66,8 @@ export default function SubscriberDetail() {
   const [savingPayment, setSavingPayment] = useState(false);
   const [paymentError, setPaymentError] = useState('');
   const [editingPayment, setEditingPayment] = useState(null);
+  const [endingMembership, setEndingMembership] = useState(false);
+  const [membershipActionError, setMembershipActionError] = useState('');
   const [paymentForm, setPaymentForm] = useState({
     amount: '',
     fee_plan_id: '',
@@ -210,6 +212,26 @@ export default function SubscriberDetail() {
     setShowPaymentForm(!showPaymentForm);
   };
 
+  const handleEndMembership = async () => {
+    const confirmed = window.confirm(
+      `End ${subscriber.name}'s membership? Their history will be preserved, biometric access will be disabled, and biometric ID ${subscriber.biometric_id} can be assigned to another member.`
+    );
+    if (!confirmed) return;
+
+    setEndingMembership(true);
+    setMembershipActionError('');
+
+    try {
+      await api.patch(`/subscribers/${id}/end-membership`);
+      await refreshSubscriber();
+      setShowPaymentForm(false);
+    } catch (err) {
+      setMembershipActionError(err.response?.data?.message || 'Unable to end membership');
+    } finally {
+      setEndingMembership(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -220,6 +242,7 @@ export default function SubscriberDetail() {
 
   const sub = subscriber;
   const isExpired = new Date(sub.subscription_end) < new Date();
+  const isInactive = sub.status === 'inactive';
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -233,13 +256,24 @@ export default function SubscriberDetail() {
             <p className="text-sm text-gray-500 font-mono">{sub.member_id}</p>
           </div>
         </div>
-        <div className="flex gap-2">
-          <button
-            onClick={togglePaymentForm}
-            className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium flex items-center gap-2"
-          >
-            <RotateCcw className="w-4 h-4" /> Renew
-          </button>
+        <div className="flex flex-wrap justify-end gap-2">
+          {!isInactive && (
+            <>
+              <button
+                onClick={handleEndMembership}
+                disabled={endingMembership}
+                className="px-4 py-2 border border-red-200 bg-white hover:bg-red-50 disabled:opacity-60 text-red-600 rounded-lg text-sm font-medium flex items-center gap-2"
+              >
+                <UserX className="w-4 h-4" /> {endingMembership ? 'Ending...' : 'End Membership'}
+              </button>
+              <button
+                onClick={togglePaymentForm}
+                className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium flex items-center gap-2"
+              >
+                <RotateCcw className="w-4 h-4" /> Renew
+              </button>
+            </>
+          )}
           <Link
             to={`/admin/subscribers/${id}/edit`}
             className="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-sm font-medium flex items-center gap-2"
@@ -248,6 +282,12 @@ export default function SubscriberDetail() {
           </Link>
         </div>
       </div>
+
+      {membershipActionError && (
+        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {membershipActionError}
+        </div>
+      )}
 
       {/* Record payment form */}
       {showPaymentForm && (
@@ -315,17 +355,17 @@ export default function SubscriberDetail() {
       )}
 
       {/* Status banner */}
-      <div className={`p-4 rounded-xl ${isExpired ? 'bg-red-50 border border-red-200' : 'bg-green-50 border border-green-200'}`}>
+      <div className={`p-4 rounded-xl ${isInactive ? 'bg-gray-100 border border-gray-200' : isExpired ? 'bg-red-50 border border-red-200' : 'bg-green-50 border border-green-200'}`}>
         <div className="flex items-center justify-between">
           <div>
-            <span className={`px-3 py-1 rounded-full text-sm font-medium ${isExpired ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
+            <span className={`px-3 py-1 rounded-full text-sm font-medium ${isInactive ? 'bg-gray-200 text-gray-700' : isExpired ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
               {sub.status.toUpperCase()}
             </span>
             <span className="ml-3 text-sm text-gray-600">
               Subscription: {formatDisplayDate(sub.subscription_start)} → {formatDisplayDate(sub.subscription_end)}
             </span>
           </div>
-          {isExpired && <span className="text-red-600 font-medium text-sm">EXPIRED</span>}
+          {isInactive ? <span className="text-gray-600 font-medium text-sm">MEMBERSHIP ENDED</span> : isExpired && <span className="text-red-600 font-medium text-sm">EXPIRED</span>}
         </div>
       </div>
 
