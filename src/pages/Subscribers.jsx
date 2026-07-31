@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import api from '../api';
-import { Plus, Search, Eye, Edit, Trash2, CreditCard, X } from 'lucide-react';
+import { Plus, Search, Eye, Edit, CreditCard, X } from 'lucide-react';
 import { formatDisplayDate } from '../utils/dateFormat';
 import { toTitleCaseDisplay } from '../utils/textFormat';
 
@@ -70,12 +70,6 @@ export default function Subscribers() {
     e.preventDefault();
     setPage(1);
     fetchSubscribers(1);
-  };
-
-  const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this subscriber?')) return;
-    await api.delete(`/subscribers/${id}`);
-    fetchSubscribers();
   };
 
   const calculateEndDate = (startDate, planId) => {
@@ -391,13 +385,6 @@ export default function Subscribers() {
                           title="Add payment"
                         >
                           <CreditCard className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(sub.id)}
-                          className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                          title="Delete"
-                        >
-                          <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
                     </td>
