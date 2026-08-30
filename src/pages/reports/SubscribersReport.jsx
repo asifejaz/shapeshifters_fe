@@ -5,10 +5,14 @@ import { formatDisplayDate, formatDisplayMonth } from '../../utils/dateFormat';
 import { toTitleCaseDisplay } from '../../utils/textFormat';
 
 const money = (value) => `Rs. ${Number(value || 0).toLocaleString()}`;
-const csvEscape = (value) => `"${String(value ?? '').replace(/"/g, '""')}"`;
+const csvEscape = (value) => {
+  const raw = String(value ?? '');
+  const safe = typeof value === 'string' && /^[=+\-@]/.test(raw.trimStart()) ? `'${raw}` : raw;
+  return `"${safe.replace(/"/g, '""')}"`;
+};
 
 const exportCsv = (filename, headers, rows) => {
-  const content = [headers.map(csvEscape).join(','), ...rows.map((row) => row.map(csvEscape).join(','))].join('\n');
+  const content = `\uFEFF${[headers.map(csvEscape).join(','), ...rows.map((row) => row.map(csvEscape).join(','))].join('\r\n')}`;
   const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -25,6 +29,8 @@ export default function SubscribersReport() {
   const [paymentCategory, setPaymentCategory] = useState('missing');
   const [paymentSearch, setPaymentSearch] = useState('');
   const [paymentPage, setPaymentPage] = useState(1);
+  const [exportingSubscribers, setExportingSubscribers] = useState(false);
+  const [exportError, setExportError] = useState('');
   const navigate = useNavigate();
 
   const fetchData = async (params = {}) => {
@@ -70,9 +76,37 @@ export default function SubscribersReport() {
   };
 
   const downloadSubscriberList = async () => {
-    const res = await api.get('/reports/subscriptions/subscribers-list', { params: { branch_id: filters.branch_id || undefined, start_date: filters.start_date || undefined, end_date: filters.end_date || undefined } });
-    const rows = (res.data?.subscribers || []).map((s) => [s.member_id, s.name, s.phone, s.email, s.status, s.joining_date, s.subscription_start, s.subscription_end, s.branch?.name || '']);
-    exportCsv(`subscribers_list_${filters.start_date || 'start'}_${filters.end_date || 'end'}.csv`, ['Member ID', 'Name', 'Phone', 'Email', 'Status', 'Joining Date', 'Subscription Start', 'Subscription End', 'Branch'], rows);
+    setExportingSubscribers(true);
+    setExportError('');
+    try {
+      const res = await api.get('/reports/subscriptions/subscribers-list', {
+        params: { all: true, branch_id: filters.branch_id || undefined },
+      });
+      const subscribers = res.data?.subscribers || [];
+      const rows = subscribers.map((subscriber) => {
+        const services = (subscriber.services || []).map((service) => service.name).join('; ');
+
+        return [
+          toTitleCaseDisplay(subscriber.name),
+          subscriber.biometric_id,
+          services,
+          subscriber.fee_amount,
+          subscriber.joining_date,
+          subscriber.latest_subscription_payment?.payment_date,
+          subscriber.status,
+        ];
+      });
+
+      exportCsv(
+        `subscribers_list_${filters.branch_id || 'all_branches'}.csv`,
+        ['Name', 'Biometric ID', 'Services', 'Fee', 'Starting Date', 'Last Fee Submission Date', 'Status'],
+        rows,
+      );
+    } catch (requestError) {
+      setExportError(requestError.response?.data?.message || 'Unable to export the subscribers list.');
+    } finally {
+      setExportingSubscribers(false);
+    }
   };
 
   const downloadPaymentStatus = () => {
@@ -105,6 +139,7 @@ export default function SubscribersReport() {
   return (
     <div className="space-y-6">
       <h2 className="text-lg font-semibold text-gray-800">Subscribers Report</h2>
+      {exportError && <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{exportError}</div>}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 grid grid-cols-1 md:grid-cols-4 gap-3">
         <div>
           <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Branch</label>
@@ -123,7 +158,7 @@ export default function SubscribersReport() {
         </div>
         <div className="flex items-end gap-2">
           <button onClick={applyFilters} className="w-full bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg text-sm font-medium">Apply</button>
-          <button onClick={downloadSubscriberList} className="w-full border border-gray-300 hover:bg-gray-100 px-4 py-2 rounded-lg text-sm font-medium">Download List</button>
+          <button disabled={exportingSubscribers} onClick={downloadSubscriberList} className="w-full border border-gray-300 hover:bg-gray-100 px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-50">{exportingSubscribers ? 'Preparing...' : 'Export Full List'}</button>
         </div>
       </div>
 
