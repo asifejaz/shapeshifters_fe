@@ -40,6 +40,7 @@ const gymNav = [
 const reportsNav = [
   { path: '/admin/reports/orders', label: 'Orders Report', icon: BarChart3 },
   { path: '/admin/reports/subscribers', label: 'Subscribers Report', icon: BarChart3 },
+  { path: '/admin/reports/monthly', label: 'Monthly Report', icon: BarChart3 },
 ];
 
 const biometricNav = [

@@ -29,6 +29,7 @@ const BiometricEnrollments = lazy(() => import('./pages/biometric/BiometricEnrol
 const AttendanceLogs = lazy(() => import('./pages/biometric/AttendanceLogs'));
 const OrdersReport = lazy(() => import('./pages/reports/OrdersReport'));
 const SubscribersReport = lazy(() => import('./pages/reports/SubscribersReport'));
+const MonthlyRevenueReport = lazy(() => import('./pages/reports/MonthlyRevenueReport'));
 const SubscribersReportDetails = lazy(() => import('./pages/reports/SubscribersReportDetails'));
 const PublicLayout = lazy(() => import('./pages/public/PublicLayout'));
 const HomePage = lazy(() => import('./pages/public/HomePage'));
@@ -111,6 +112,7 @@ function App() {
             <Route path="/admin/reports" element={<Navigate to="/admin/reports/orders" />} />
             <Route path="/admin/reports/orders" element={<ProtectedRoute><OrdersReport /></ProtectedRoute>} />
             <Route path="/admin/reports/subscribers" element={<ProtectedRoute><SubscribersReport /></ProtectedRoute>} />
+            <Route path="/admin/reports/monthly" element={<ProtectedRoute><MonthlyRevenueReport /></ProtectedRoute>} />
             <Route path="/admin/reports/subscribers/details" element={<ProtectedRoute><SubscribersReportDetails /></ProtectedRoute>} />
             <Route path="/admin/users" element={<ProtectedRoute><AdminUsers /></ProtectedRoute>} />
 

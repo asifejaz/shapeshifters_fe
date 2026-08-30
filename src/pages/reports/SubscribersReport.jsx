@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../api';
 import { formatDisplayDate, formatDisplayMonth } from '../../utils/dateFormat';
-import { toTitleCaseDisplay } from '../../utils/textFormat';
 
 const money = (value) => `Rs. ${Number(value || 0).toLocaleString()}`;
 const csvEscape = (value) => `"${String(value ?? '').replace(/"/g, '""')}"`;
@@ -47,10 +46,6 @@ export default function SubscribersReport() {
   const branchRows = useMemo(() => data?.branch_summary || [], [data]);
   const monthlyRows = useMemo(() => data?.monthly || [], [data]);
   const weeklyRows = useMemo(() => data?.weekly || [], [data]);
-  const currentMonthRevenue = data?.current_month_revenue || {};
-  const revenueSummary = currentMonthRevenue.summary || {};
-  const dailyRevenueRows = currentMonthRevenue.daily || [];
-  const paymentRows = currentMonthRevenue.payments || [];
 
   const openDetails = (periodType, period) => {
     const q = new URLSearchParams({ period_type: periodType, period, branch_id: filters.branch_id || '', start_date: filters.start_date || '', end_date: filters.end_date || '' });
@@ -61,26 +56,6 @@ export default function SubscribersReport() {
     const res = await api.get('/reports/subscriptions/subscribers-list', { params: { branch_id: filters.branch_id || undefined, start_date: filters.start_date || undefined, end_date: filters.end_date || undefined } });
     const rows = (res.data?.subscribers || []).map((s) => [s.member_id, s.name, s.phone, s.email, s.status, s.joining_date, s.subscription_start, s.subscription_end, s.branch?.name || '']);
     exportCsv(`subscribers_list_${filters.start_date || 'start'}_${filters.end_date || 'end'}.csv`, ['Member ID', 'Name', 'Phone', 'Email', 'Status', 'Joining Date', 'Subscription Start', 'Subscription End', 'Branch'], rows);
-  };
-
-  const downloadCurrentMonthPayments = () => {
-    exportCsv(
-      `subscriber_revenue_${currentMonthRevenue.month || 'current-month'}_${filters.branch_id || 'all-branches'}.csv`,
-      ['Payment Date', 'Member ID', 'Biometric ID', 'Name', 'Branch', 'Category', 'Method', 'Period Start', 'Period End', 'Reference', 'Amount'],
-      paymentRows.map((payment) => [
-        payment.payment_date,
-        payment.member_id,
-        payment.biometric_id,
-        payment.subscriber_name,
-        payment.branch_name,
-        payment.category === 'new_member' ? 'New Member' : 'Existing Member Subscription',
-        payment.payment_method?.replace('_', ' '),
-        payment.period_start,
-        payment.period_end,
-        payment.reference_number,
-        payment.amount,
-      ]),
-    );
   };
 
   if (loading && !data) return <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600" /></div>;
@@ -117,105 +92,6 @@ export default function SubscribersReport() {
         <StatCard label="Overall Active Subscribers" value={summary.active_subscribers || 0} />
       </div>
 
-      <section className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-        <div className="flex flex-col gap-3 border-b border-gray-200 bg-gray-50 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h3 className="text-base font-semibold text-gray-900">Current Month Revenue</h3>
-            <p className="mt-0.5 text-xs text-gray-500">
-              {formatDisplayDate(currentMonthRevenue.start_date)} to {formatDisplayDate(currentMonthRevenue.end_date)}
-            </p>
-          </div>
-          <button onClick={downloadCurrentMonthPayments} className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-xs font-medium hover:bg-gray-100">
-            Export Payment Details
-          </button>
-        </div>
-
-        <div className="grid grid-cols-1 gap-px bg-gray-200 sm:grid-cols-3">
-          <RevenueCard label="Total Revenue" value={money(revenueSummary.total_revenue)} detail={`${revenueSummary.total_payments || 0} payments`} tone="dark" />
-          <RevenueCard label="New Member Payments" value={money(revenueSummary.new_member_revenue)} detail={`${revenueSummary.new_member_payments || 0} payments from ${revenueSummary.new_members || 0} members`} tone="orange" />
-          <RevenueCard label="Existing Member Subscriptions" value={money(revenueSummary.existing_member_revenue)} detail={`${revenueSummary.existing_member_payments || 0} payments from ${revenueSummary.existing_members || 0} members`} tone="green" />
-        </div>
-
-        <div className="grid grid-cols-1 border-t border-gray-200 xl:grid-cols-[0.9fr_2.1fr]">
-          <div className="border-b border-gray-200 xl:border-b-0 xl:border-r">
-            <div className="border-b bg-gray-50 px-4 py-3">
-              <h4 className="text-sm font-semibold text-gray-800">Daily Breakdown</h4>
-            </div>
-            <div className="max-h-[520px] overflow-auto">
-              <table className="w-full text-sm">
-                <thead className="sticky top-0 bg-white shadow-sm">
-                  <tr className="text-left text-[10px] uppercase tracking-wide text-gray-500">
-                    <th className="px-4 py-2">Date</th>
-                    <th className="px-4 py-2 text-right">New</th>
-                    <th className="px-4 py-2 text-right">Existing</th>
-                    <th className="px-4 py-2 text-right">Total</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {dailyRevenueRows.map((row) => (
-                    <tr key={row.date} className="border-t border-gray-100">
-                      <td className="px-4 py-2.5 font-medium text-gray-700">{formatDisplayDate(row.date)}</td>
-                      <td className="px-4 py-2.5 text-right text-orange-700">{money(row.new_member_revenue)}</td>
-                      <td className="px-4 py-2.5 text-right text-green-700">{money(row.existing_member_revenue)}</td>
-                      <td className="px-4 py-2.5 text-right font-semibold text-gray-900">{money(row.total_revenue)}</td>
-                    </tr>
-                  ))}
-                  {dailyRevenueRows.length === 0 && <tr><td colSpan="4" className="px-4 py-8 text-center text-gray-500">No payments this month</td></tr>}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <div>
-            <div className="border-b bg-gray-50 px-4 py-3">
-              <h4 className="text-sm font-semibold text-gray-800">Complete Payment Details</h4>
-            </div>
-            <div className="max-h-[520px] overflow-auto">
-              <table className="w-full min-w-[980px] text-sm">
-                <thead className="sticky top-0 bg-white shadow-sm">
-                  <tr className="text-left text-[10px] uppercase tracking-wide text-gray-500">
-                    <th className="px-4 py-2">Date</th>
-                    <th className="px-4 py-2">Member</th>
-                    <th className="px-4 py-2">Biometric</th>
-                    <th className="px-4 py-2">Branch</th>
-                    <th className="px-4 py-2">Category</th>
-                    <th className="px-4 py-2">Method</th>
-                    <th className="px-4 py-2">Subscription Period</th>
-                    <th className="px-4 py-2 text-right">Amount</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {paymentRows.map((payment) => (
-                    <tr key={payment.id} className="border-t border-gray-100 hover:bg-gray-50">
-                      <td className="whitespace-nowrap px-4 py-2.5">{formatDisplayDate(payment.payment_date)}</td>
-                      <td className="px-4 py-2.5">
-                        <button onClick={() => navigate(`/admin/subscribers/${payment.subscriber_id}`)} className="text-left font-medium text-gray-900 hover:text-orange-600 hover:underline">
-                          {toTitleCaseDisplay(payment.subscriber_name)}
-                        </button>
-                        <p className="text-xs text-gray-400">{payment.member_id}</p>
-                      </td>
-                      <td className="px-4 py-2.5 font-mono text-xs">{payment.biometric_id || '-'}</td>
-                      <td className="px-4 py-2.5">{payment.branch_name || '-'}</td>
-                      <td className="px-4 py-2.5">
-                        <span className={`rounded-full px-2 py-1 text-[10px] font-bold uppercase ${payment.category === 'new_member' ? 'bg-orange-100 text-orange-700' : 'bg-green-100 text-green-700'}`}>
-                          {payment.category === 'new_member' ? 'New Member' : 'Existing Member'}
-                        </span>
-                      </td>
-                      <td className="px-4 py-2.5 capitalize">{payment.payment_method?.replace('_', ' ')}</td>
-                      <td className="whitespace-nowrap px-4 py-2.5 text-xs text-gray-500">
-                        {formatDisplayDate(payment.period_start)} to {formatDisplayDate(payment.period_end)}
-                      </td>
-                      <td className="px-4 py-2.5 text-right font-semibold">{money(payment.amount)}</td>
-                    </tr>
-                  ))}
-                  {paymentRows.length === 0 && <tr><td colSpan="8" className="px-4 py-8 text-center text-gray-500">No payment details found</td></tr>}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </section>
-
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <TableCard title="Branch-wise Summary" columns={['Branch', 'New (Month)', 'New (Week)', 'Revenue (Month)', 'Revenue (Week)']} onExport={() => exportCsv(`${prefix}_branch_summary.csv`, ['Branch', 'New (Month)', 'New (Week)', 'Revenue (Month)', 'Revenue (Week)', 'Total Subscribers', 'Active Subscribers'], branchRows.map((r) => [r.branch_name, r.new_subscribers_this_month, r.new_subscribers_this_week, r.revenue_this_month, r.revenue_this_week, r.total_subscribers, r.active_subscribers]))}>
           {branchRows.map((row) => <tr key={row.branch_id} className="border-t"><td className="px-4 py-2">{row.branch_name}</td><td className="px-4 py-2">{row.new_subscribers_this_month}</td><td className="px-4 py-2">{row.new_subscribers_this_week}</td><td className="px-4 py-2">{money(row.revenue_this_month)}</td><td className="px-4 py-2">{money(row.revenue_this_week)}</td></tr>)}
@@ -234,13 +110,4 @@ export default function SubscribersReport() {
 }
 
 function StatCard({ label, value }) { return <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4"><p className="text-xs text-gray-500 uppercase font-semibold">{label}</p><p className="mt-2 text-xl font-bold text-gray-900">{value}</p></div>; }
-function RevenueCard({ label, value, detail, tone }) {
-  const toneClasses = tone === 'orange'
-    ? 'bg-orange-50 text-orange-950'
-    : tone === 'green'
-      ? 'bg-green-50 text-green-950'
-      : 'bg-gray-900 text-white';
-  const detailClass = tone === 'dark' ? 'text-gray-300' : 'text-gray-500';
-  return <div className={`p-5 ${toneClasses}`}><p className="text-xs font-bold uppercase tracking-wide opacity-70">{label}</p><p className="mt-2 text-2xl font-bold">{value}</p><p className={`mt-1 text-xs ${detailClass}`}>{detail}</p></div>;
-}
 function TableCard({ title, columns, children, onExport }) { return <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden"><div className="px-4 py-3 border-b bg-gray-50 flex items-center justify-between"><h3 className="text-sm font-semibold text-gray-800">{title}</h3>{onExport && <button onClick={onExport} className="text-xs px-3 py-1.5 rounded-lg border border-gray-300 bg-white hover:bg-gray-100 font-medium">Export CSV</button>}</div><div className="overflow-auto"><table className="w-full text-sm"><thead><tr className="text-left">{columns.map((col) => <th key={col} className="px-4 py-2 text-xs uppercase text-gray-500">{col}</th>)}</tr></thead><tbody>{children}</tbody></table></div></div>; }
