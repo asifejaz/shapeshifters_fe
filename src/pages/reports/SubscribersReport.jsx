@@ -92,7 +92,7 @@ export default function SubscribersReport() {
           services,
           subscriber.fee_amount,
           subscriber.joining_date,
-          subscriber.latest_subscription_payment?.payment_date,
+          subscriber.most_recent_subscription_payment?.payment_date,
           subscriber.status,
         ];
       });
