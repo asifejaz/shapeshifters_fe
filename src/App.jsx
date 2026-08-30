@@ -13,6 +13,7 @@ const Services = lazy(() => import('./pages/Services'));
 const FeePlans = lazy(() => import('./pages/FeePlans'));
 const Checkins = lazy(() => import('./pages/Checkins'));
 const Payments = lazy(() => import('./pages/Payments'));
+const Expenses = lazy(() => import('./pages/Expenses'));
 const CmsPages = lazy(() => import('./pages/cms/CmsPages'));
 const CmsPageForm = lazy(() => import('./pages/cms/CmsPageForm'));
 const CmsMenus = lazy(() => import('./pages/cms/CmsMenus'));
@@ -109,6 +110,7 @@ function App() {
             <Route path="/admin/fee-plans" element={<ProtectedRoute><FeePlans /></ProtectedRoute>} />
             <Route path="/admin/checkins" element={<ProtectedRoute><Checkins /></ProtectedRoute>} />
             <Route path="/admin/payments" element={<ProtectedRoute><Payments /></ProtectedRoute>} />
+            <Route path="/admin/expenses" element={<ProtectedRoute><Expenses /></ProtectedRoute>} />
             <Route path="/admin/reports" element={<Navigate to="/admin/reports/orders" />} />
             <Route path="/admin/reports/orders" element={<ProtectedRoute><OrdersReport /></ProtectedRoute>} />
             <Route path="/admin/reports/subscribers" element={<ProtectedRoute><SubscribersReport /></ProtectedRoute>} />

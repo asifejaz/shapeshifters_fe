@@ -9,6 +9,7 @@ import {
   CreditCard,
   ScanLine,
   Receipt,
+  WalletCards,
   BarChart3,
   LogOut,
   Menu,
@@ -35,6 +36,7 @@ const gymNav = [
   { path: '/admin/fee-plans', label: 'Fee Plans', icon: CreditCard },
   { path: '/admin/checkins', label: 'Check-ins', icon: ScanLine },
   { path: '/admin/payments', label: 'Payments', icon: Receipt },
+  { path: '/admin/expenses', label: 'Expenses', icon: WalletCards },
 ];
 
 const reportsNav = [

@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { CalendarRange, Download } from 'lucide-react';
 import api from '../../api';
 import { formatDisplayDate, formatDisplayMonth } from '../../utils/dateFormat';
@@ -55,6 +54,9 @@ const exportRevenueReport = (filename, report) => {
     ['Period End', report?.end_date],
     ['Total Revenue', summary.total_revenue],
     ['Total Payments', summary.total_payments],
+    ['Total Expenses', summary.total_expenses],
+    ['Expense Entries', summary.expense_entries],
+    ['Net Balance', summary.net_balance],
     ['New Member Revenue', summary.new_member_revenue],
     ['New Member Payments', summary.new_member_payments],
     ['New Members', summary.new_members],
@@ -63,12 +65,16 @@ const exportRevenueReport = (filename, report) => {
     ['Existing Members', summary.existing_members],
     [],
     ['Month-by-Month Summary'],
-    ['Month', 'New Member Payments', 'New Member Revenue', 'Existing Member Payments', 'Existing Member Revenue', 'Total Payments', 'Total Revenue'],
-    ...(report?.monthly || []).map((month) => [month.month, month.new_member_payments, month.new_member_revenue, month.existing_member_payments, month.existing_member_revenue, month.total_payments, month.total_revenue]),
+    ['Month', 'New Member Payments', 'New Member Revenue', 'Existing Member Payments', 'Existing Member Revenue', 'Total Payments', 'Total Revenue', 'Expense Entries', 'Total Expenses', 'Net Balance'],
+    ...(report?.monthly || []).map((month) => [month.month, month.new_member_payments, month.new_member_revenue, month.existing_member_payments, month.existing_member_revenue, month.total_payments, month.total_revenue, month.expense_entries, month.total_expenses, month.net_balance]),
     [],
     ['Daily Breakdown'],
-    ['Date', 'New Member Payments', 'New Member Revenue', 'Existing Member Payments', 'Existing Member Revenue', 'Total Payments', 'Total Revenue'],
-    ...(report?.daily || []).map((day) => [day.date, day.new_member_payments, day.new_member_revenue, day.existing_member_payments, day.existing_member_revenue, day.total_payments, day.total_revenue]),
+    ['Date', 'New Member Payments', 'New Member Revenue', 'Existing Member Payments', 'Existing Member Revenue', 'Total Payments', 'Total Revenue', 'Expense Entries', 'Total Expenses', 'Net Balance'],
+    ...(report?.daily || []).map((day) => [day.date, day.new_member_payments, day.new_member_revenue, day.existing_member_payments, day.existing_member_revenue, day.total_payments, day.total_revenue, day.expense_entries, day.total_expenses, day.net_balance]),
+    [],
+    ['Debit / Credit Ledger'],
+    ['Date', 'Type', 'Description', 'Category', 'Branch', 'Debit Account', 'Credit Account', 'Debit', 'Credit'],
+    ...(report?.ledger || []).map((entry) => [entry.date, entry.entry_type, entry.description, entry.category, entry.branch_name, entry.debit_account, entry.credit_account, entry.debit, entry.credit]),
     [],
     ['Complete Payment Details'],
     csvHeaders,
@@ -79,7 +85,6 @@ const exportRevenueReport = (filename, report) => {
 };
 
 export default function MonthlyRevenueReport() {
-  const navigate = useNavigate();
   const currentMonth = localMonth();
   const [filters, setFilters] = useState({ month: currentMonth, branch_id: '' });
   const [exportRange, setExportRange] = useState({ start_month: shiftMonth(currentMonth, -5), end_month: currentMonth });
@@ -144,7 +149,7 @@ export default function MonthlyRevenueReport() {
 
   const summary = data?.summary || {};
   const dailyRows = data?.daily || [];
-  const paymentRows = data?.payments || [];
+  const ledgerRows = data?.ledger || [];
   const displayedMonth = data?.filters?.month || filters.month;
 
   if (loading && !data) {
@@ -155,7 +160,7 @@ export default function MonthlyRevenueReport() {
     <div className="space-y-6">
       <div>
         <h2 className="text-lg font-semibold text-gray-800">Monthly Report</h2>
-        <p className="mt-1 text-sm text-gray-500">Complete calendar-month revenue from new-member payments and existing-member subscriptions.</p>
+        <p className="mt-1 text-sm text-gray-500">Monthly income, categorized expenses, debit/credit entries, and net balance.</p>
       </div>
 
       {error && <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>}
@@ -208,8 +213,10 @@ export default function MonthlyRevenueReport() {
           <button onClick={downloadSelectedMonth} className="flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-xs font-medium hover:bg-gray-100"><Download className="h-4 w-4" /> Download This Month</button>
         </div>
 
-        <div className="grid grid-cols-1 gap-px bg-gray-200 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-px bg-gray-200 sm:grid-cols-2 xl:grid-cols-5">
           <RevenueCard label="Total Revenue" value={money(summary.total_revenue)} detail={`${summary.total_payments || 0} payments`} tone="dark" />
+          <RevenueCard label="Total Expenses" value={money(summary.total_expenses)} detail={`${summary.expense_entries || 0} expense entries`} tone="red" />
+          <RevenueCard label="Net Balance" value={money(summary.net_balance)} detail="Revenue less expenses" tone={Number(summary.net_balance) >= 0 ? 'green' : 'red'} />
           <RevenueCard label="New Member Payments" value={money(summary.new_member_revenue)} detail={`${summary.new_member_payments || 0} payments from ${summary.new_members || 0} members`} tone="orange" />
           <RevenueCard label="Existing Member Subscriptions" value={money(summary.existing_member_revenue)} detail={`${summary.existing_member_payments || 0} payments from ${summary.existing_members || 0} members`} tone="green" />
         </div>
@@ -219,23 +226,23 @@ export default function MonthlyRevenueReport() {
             <div className="border-b bg-gray-50 px-4 py-3"><h4 className="text-sm font-semibold text-gray-800">Daily Breakdown</h4></div>
             <div className="max-h-[560px] overflow-auto">
               <table className="w-full text-sm">
-                <thead className="sticky top-0 bg-white shadow-sm"><tr className="text-left text-[10px] uppercase tracking-wide text-gray-500"><th className="px-4 py-2">Date</th><th className="px-4 py-2 text-right">New</th><th className="px-4 py-2 text-right">Existing</th><th className="px-4 py-2 text-right">Total</th></tr></thead>
+                <thead className="sticky top-0 bg-white shadow-sm"><tr className="text-left text-[10px] uppercase tracking-wide text-gray-500"><th className="px-4 py-2">Date</th><th className="px-4 py-2 text-right">Revenue</th><th className="px-4 py-2 text-right">Expenses</th><th className="px-4 py-2 text-right">Net</th></tr></thead>
                 <tbody>
-                  {dailyRows.map((row) => <tr key={row.date} className="border-t border-gray-100"><td className="px-4 py-2.5 font-medium text-gray-700">{formatDisplayDate(row.date)}</td><td className="px-4 py-2.5 text-right text-orange-700"><span className="block">{money(row.new_member_revenue)}</span><span className="text-[10px] text-gray-400">{row.new_member_payments} payments</span></td><td className="px-4 py-2.5 text-right text-green-700"><span className="block">{money(row.existing_member_revenue)}</span><span className="text-[10px] text-gray-400">{row.existing_member_payments} payments</span></td><td className="px-4 py-2.5 text-right font-semibold text-gray-900">{money(row.total_revenue)}</td></tr>)}
-                  {dailyRows.length === 0 && <tr><td colSpan="4" className="px-4 py-8 text-center text-gray-500">No payments in this month</td></tr>}
+                  {dailyRows.map((row) => <tr key={row.date} className="border-t border-gray-100"><td className="px-4 py-2.5 font-medium text-gray-700">{formatDisplayDate(row.date)}</td><td className="px-4 py-2.5 text-right text-green-700"><span className="block">{money(row.total_revenue)}</span><span className="text-[10px] text-gray-400">{row.total_payments} payments</span></td><td className="px-4 py-2.5 text-right text-red-700"><span className="block">{money(row.total_expenses)}</span><span className="text-[10px] text-gray-400">{row.expense_entries} entries</span></td><td className={`px-4 py-2.5 text-right font-semibold ${Number(row.net_balance) < 0 ? 'text-red-700' : 'text-gray-900'}`}>{money(row.net_balance)}</td></tr>)}
+                  {dailyRows.length === 0 && <tr><td colSpan="4" className="px-4 py-8 text-center text-gray-500">No accounting entries in this month</td></tr>}
                 </tbody>
               </table>
             </div>
           </div>
 
           <div>
-            <div className="border-b bg-gray-50 px-4 py-3"><h4 className="text-sm font-semibold text-gray-800">Complete Payment Details</h4></div>
+            <div className="border-b bg-gray-50 px-4 py-3"><h4 className="text-sm font-semibold text-gray-800">Monthly Debit / Credit Sheet</h4></div>
             <div className="max-h-[560px] overflow-auto">
-              <table className="w-full min-w-[980px] text-sm">
-                <thead className="sticky top-0 bg-white shadow-sm"><tr className="text-left text-[10px] uppercase tracking-wide text-gray-500"><th className="px-4 py-2">Date</th><th className="px-4 py-2">Member</th><th className="px-4 py-2">Biometric</th><th className="px-4 py-2">Branch</th><th className="px-4 py-2">Category</th><th className="px-4 py-2">Method</th><th className="px-4 py-2">Subscription Period</th><th className="px-4 py-2 text-right">Amount</th></tr></thead>
+              <table className="w-full min-w-[900px] text-sm">
+                <thead className="sticky top-0 bg-white shadow-sm"><tr className="text-left text-[10px] uppercase tracking-wide text-gray-500"><th className="px-4 py-2">Date</th><th className="px-4 py-2">Description</th><th className="px-4 py-2">Category</th><th className="px-4 py-2">Debit Account</th><th className="px-4 py-2">Credit Account</th><th className="px-4 py-2 text-right">Debit</th><th className="px-4 py-2 text-right">Credit</th></tr></thead>
                 <tbody>
-                  {paymentRows.map((payment) => <PaymentRow key={payment.id} payment={payment} onOpen={() => navigate(`/admin/subscribers/${payment.subscriber_id}`)} />)}
-                  {paymentRows.length === 0 && <tr><td colSpan="8" className="px-4 py-8 text-center text-gray-500">No payment details found</td></tr>}
+                  {ledgerRows.map((entry) => <LedgerRow key={entry.id} entry={entry} />)}
+                  {ledgerRows.length === 0 && <tr><td colSpan="7" className="px-4 py-8 text-center text-gray-500">No ledger entries found</td></tr>}
                 </tbody>
               </table>
             </div>
@@ -246,23 +253,22 @@ export default function MonthlyRevenueReport() {
   );
 }
 
-function PaymentRow({ payment, onOpen }) {
+function LedgerRow({ entry }) {
   return (
     <tr className="border-t border-gray-100 hover:bg-gray-50">
-      <td className="whitespace-nowrap px-4 py-2.5">{formatDisplayDate(payment.payment_date)}</td>
-      <td className="px-4 py-2.5"><button onClick={onOpen} className="text-left font-medium text-gray-900 hover:text-orange-600 hover:underline">{toTitleCaseDisplay(payment.subscriber_name)}</button><p className="text-xs text-gray-400">{payment.member_id}</p></td>
-      <td className="px-4 py-2.5 font-mono text-xs">{payment.biometric_id || '-'}</td>
-      <td className="px-4 py-2.5">{payment.branch_name || '-'}</td>
-      <td className="px-4 py-2.5"><span className={`rounded-full px-2 py-1 text-[10px] font-bold uppercase ${payment.category === 'new_member' ? 'bg-orange-100 text-orange-700' : 'bg-green-100 text-green-700'}`}>{payment.category === 'new_member' ? 'New Member' : 'Existing Member'}</span></td>
-      <td className="px-4 py-2.5 capitalize">{payment.payment_method?.replace('_', ' ')}</td>
-      <td className="whitespace-nowrap px-4 py-2.5 text-xs text-gray-500">{formatDisplayDate(payment.period_start)} to {formatDisplayDate(payment.period_end)}</td>
-      <td className="px-4 py-2.5 text-right font-semibold">{money(payment.amount)}</td>
+      <td className="whitespace-nowrap px-4 py-2.5">{formatDisplayDate(entry.date)}</td>
+      <td className="px-4 py-2.5"><p className="font-medium text-gray-900">{toTitleCaseDisplay(entry.description)}</p><p className="text-xs text-gray-400">{entry.branch_name}</p></td>
+      <td className="px-4 py-2.5"><span className={`rounded-full px-2 py-1 text-[10px] font-bold uppercase ${entry.entry_type === 'expense' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>{entry.category?.replace('_', ' ')}</span></td>
+      <td className="px-4 py-2.5">{entry.debit_account}</td>
+      <td className="px-4 py-2.5">{entry.credit_account}</td>
+      <td className="px-4 py-2.5 text-right font-semibold text-red-700">{entry.debit ? money(entry.debit) : '—'}</td>
+      <td className="px-4 py-2.5 text-right font-semibold text-green-700">{entry.credit ? money(entry.credit) : '—'}</td>
     </tr>
   );
 }
 
 function RevenueCard({ label, value, detail, tone }) {
-  const toneClasses = tone === 'orange' ? 'bg-orange-50 text-orange-950' : tone === 'green' ? 'bg-green-50 text-green-950' : 'bg-gray-900 text-white';
+  const toneClasses = tone === 'orange' ? 'bg-orange-50 text-orange-950' : tone === 'green' ? 'bg-green-50 text-green-950' : tone === 'red' ? 'bg-red-50 text-red-950' : 'bg-gray-900 text-white';
   const detailClass = tone === 'dark' ? 'text-gray-300' : 'text-gray-500';
   return <div className={`p-5 ${toneClasses}`}><p className="text-xs font-bold uppercase tracking-wide opacity-70">{label}</p><p className="mt-2 text-2xl font-bold">{value}</p><p className={`mt-1 text-xs ${detailClass}`}>{detail}</p></div>;
 }
