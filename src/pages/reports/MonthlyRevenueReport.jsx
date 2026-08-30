@@ -5,7 +5,11 @@ import { formatDisplayDate, formatDisplayMonth } from '../../utils/dateFormat';
 import { toTitleCaseDisplay } from '../../utils/textFormat';
 
 const money = (value) => `Rs. ${Number(value || 0).toLocaleString()}`;
-const csvEscape = (value) => `"${String(value ?? '').replace(/"/g, '""')}"`;
+const csvEscape = (value) => {
+  const raw = String(value ?? '');
+  const safe = typeof value === 'string' && /^[=+\-@]/.test(raw.trimStart()) ? `'${raw}` : raw;
+  return `"${safe.replace(/"/g, '""')}"`;
+};
 
 const localMonth = (date = new Date()) => {
   const year = date.getFullYear();
@@ -19,7 +23,7 @@ const shiftMonth = (value, amount) => {
 };
 
 const downloadCsv = (filename, rows) => {
-  const content = rows.map((row) => row.map(csvEscape).join(',')).join('\n');
+  const content = `\uFEFF${rows.map((row) => row.map(csvEscape).join(',')).join('\r\n')}`;
   const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
@@ -29,56 +33,68 @@ const downloadCsv = (filename, rows) => {
   URL.revokeObjectURL(url);
 };
 
-const paymentCsvRows = (payments) => payments.map((payment) => [
-  payment.payment_date?.slice(0, 7),
-  payment.payment_date,
-  payment.member_id,
-  payment.biometric_id,
-  payment.subscriber_name,
-  payment.branch_name,
-  payment.category === 'new_member' ? 'New Member' : 'Existing Member Subscription',
-  payment.payment_method?.replace('_', ' '),
-  payment.period_start,
-  payment.period_end,
-  payment.reference_number,
-  payment.amount,
-]);
+const accountingTransactions = (report) => {
+  const income = (report?.payments || []).map((payment) => ({
+    id: `P-${payment.id}`,
+    date: payment.payment_date,
+    type: 'Income',
+    particulars: `${payment.subscriber_name} - ${payment.category === 'new_member' ? 'New Member Fee' : 'Subscription'}`,
+    branch: payment.branch_name,
+    account: 'Membership Revenue',
+    source: payment.payment_method?.replace('_', ' '),
+    reference: payment.reference_number,
+    debit: 0,
+    credit: Number(payment.amount || 0),
+  }));
 
-const csvHeaders = ['Month', 'Payment Date', 'Member ID', 'Biometric ID', 'Name', 'Branch', 'Category', 'Method', 'Period Start', 'Period End', 'Reference', 'Amount'];
+  const expenses = (report?.expenses || []).map((expense) => ({
+    id: `E-${expense.id}`,
+    date: expense.expense_date,
+    type: 'Expense',
+    particulars: expense.description || expense.head_name,
+    branch: expense.branch_name,
+    account: expense.head_name,
+    source: `${expense.paid_by}${expense.payment_method ? ` (${expense.payment_method.replace('_', ' ')})` : ''}`,
+    reference: expense.reference_number,
+    debit: Number(expense.amount || 0),
+    credit: 0,
+  }));
+
+  return [...income, ...expenses].sort((a, b) => {
+    const dateComparison = String(a.date).localeCompare(String(b.date));
+    return dateComparison || a.id.localeCompare(b.id, undefined, { numeric: true });
+  });
+};
 
 const exportRevenueReport = (filename, report) => {
   const summary = report?.summary || {};
+  const selectedBranchId = report?.filters?.branch_id || report?.branches?.selected_branch_id;
+  const selectedBranch = report?.branches?.options?.find((branch) => String(branch.id) === String(selectedBranchId));
+  const transactions = accountingTransactions(report);
+  const netBalance = Number(summary.net_balance || 0);
+  let runningBalance = 0;
+
   const rows = [
-    ['Monthly Revenue Report'],
+    ['SHAPE SHIFTERS - ACCOUNTING DEBIT / CREDIT STATEMENT'],
     ['Period Start', report?.start_date],
     ['Period End', report?.end_date],
-    ['Total Revenue', summary.total_revenue],
-    ['Total Payments', summary.total_payments],
-    ['Total Expenses', summary.total_expenses],
-    ['Expense Entries', summary.expense_entries],
-    ['Net Balance', summary.net_balance],
-    ['New Member Revenue', summary.new_member_revenue],
-    ['New Member Payments', summary.new_member_payments],
-    ['New Members', summary.new_members],
-    ['Existing Member Revenue', summary.existing_member_revenue],
-    ['Existing Member Payments', summary.existing_member_payments],
-    ['Existing Members', summary.existing_members],
+    ['Branch', selectedBranch?.name || 'All Branches'],
     [],
-    ['Month-by-Month Summary'],
-    ['Month', 'New Member Payments', 'New Member Revenue', 'Existing Member Payments', 'Existing Member Revenue', 'Total Payments', 'Total Revenue', 'Expense Entries', 'Total Expenses', 'Net Balance'],
-    ...(report?.monthly || []).map((month) => [month.month, month.new_member_payments, month.new_member_revenue, month.existing_member_payments, month.existing_member_revenue, month.total_payments, month.total_revenue, month.expense_entries, month.total_expenses, month.net_balance]),
+    ['ACCOUNT SUMMARY'],
+    ['Description', 'Debit (Rs.)', 'Credit (Rs.)'],
+    ['Membership Revenue', '', summary.total_revenue],
+    ['Expenses', summary.total_expenses, ''],
+    ['TOTAL', summary.total_expenses, summary.total_revenue],
+    ['NET BALANCE (Credit - Debit)', netBalance < 0 ? Math.abs(netBalance) : '', netBalance >= 0 ? netBalance : ''],
     [],
-    ['Daily Breakdown'],
-    ['Date', 'New Member Payments', 'New Member Revenue', 'Existing Member Payments', 'Existing Member Revenue', 'Total Payments', 'Total Revenue', 'Expense Entries', 'Total Expenses', 'Net Balance'],
-    ...(report?.daily || []).map((day) => [day.date, day.new_member_payments, day.new_member_revenue, day.existing_member_payments, day.existing_member_revenue, day.total_payments, day.total_revenue, day.expense_entries, day.total_expenses, day.net_balance]),
+    ['DEBIT / CREDIT DETAILS'],
+    ['Date', 'Voucher', 'Type', 'Particulars', 'Category / Account', 'Branch', 'Paid By / Received Via', 'Reference', 'Debit (Rs.)', 'Credit (Rs.)', 'Running Balance (Rs.)'],
+    ...transactions.map((transaction) => {
+      runningBalance = Math.round((runningBalance + transaction.credit - transaction.debit) * 100) / 100;
+      return [transaction.date, transaction.id, transaction.type, transaction.particulars, transaction.account, transaction.branch, transaction.source, transaction.reference, transaction.debit || '', transaction.credit || '', runningBalance];
+    }),
     [],
-    ['Debit / Credit Ledger'],
-    ['Date', 'Type', 'Description', 'Category', 'Branch', 'Debit Account', 'Credit Account', 'Debit', 'Credit'],
-    ...(report?.ledger || []).map((entry) => [entry.date, entry.entry_type, entry.description, entry.category, entry.branch_name, entry.debit_account, entry.credit_account, entry.debit, entry.credit]),
-    [],
-    ['Complete Payment Details'],
-    csvHeaders,
-    ...paymentCsvRows(report?.payments || []),
+    ['TOTAL', '', '', '', '', '', '', '', summary.total_expenses, summary.total_revenue, summary.net_balance],
   ];
 
   downloadCsv(filename, rows);
@@ -210,7 +226,7 @@ export default function MonthlyRevenueReport() {
             <h3 className="text-base font-semibold text-gray-900">{formatDisplayMonth(displayedMonth)}</h3>
             <p className="mt-0.5 text-xs text-gray-500">{formatDisplayDate(data?.start_date)} to {formatDisplayDate(data?.end_date)}</p>
           </div>
-          <button onClick={downloadSelectedMonth} className="flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-xs font-medium hover:bg-gray-100"><Download className="h-4 w-4" /> Download This Month</button>
+          <button onClick={downloadSelectedMonth} className="flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-xs font-medium hover:bg-gray-100"><Download className="h-4 w-4" /> Download Accounting CSV</button>
         </div>
 
         <div className="grid grid-cols-1 gap-px bg-gray-200 sm:grid-cols-2 xl:grid-cols-5">
