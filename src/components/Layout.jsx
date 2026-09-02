@@ -26,6 +26,7 @@ import {
   ShoppingBag,
   Package,
   ShoppingCart,
+  Mail,
 } from 'lucide-react';
 
 const gymNav = [
@@ -43,6 +44,7 @@ const reportsNav = [
   { path: '/admin/reports/orders', label: 'Orders Report', icon: BarChart3 },
   { path: '/admin/reports/subscribers', label: 'Subscribers Report', icon: BarChart3 },
   { path: '/admin/reports/monthly', label: 'Monthly Report', icon: BarChart3 },
+  { path: '/admin/reports/daily-email', label: 'Daily Email Reports', icon: Mail, adminOnly: true },
 ];
 
 const biometricNav = [
@@ -70,6 +72,11 @@ export default function Layout({ children }) {
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const isSuperAdmin = user?.role === 'super_admin';
+  const isAdmin = isSuperAdmin || user?.role === 'admin';
+  const isStaff = user?.role === 'staff';
+  const visibleGymNav = isStaff
+    ? gymNav.filter((item) => ['/admin', '/admin/subscribers', '/admin/expenses'].includes(item.path))
+    : gymNav;
 
   const handleLogout = async () => {
     await logout();
@@ -81,7 +88,8 @@ export default function Layout({ children }) {
     return location.pathname === item.path || location.pathname.startsWith(item.path + '/');
   };
 
-  const allNav = [...gymNav, ...reportsNav, ...biometricNav, ...adminNav, ...cmsNav];
+  const visibleReportsNav = reportsNav.filter((item) => !item.adminOnly || isAdmin);
+  const allNav = [...visibleGymNav, ...(isStaff ? [] : [...visibleReportsNav, ...biometricNav]), ...adminNav, ...cmsNav];
   const currentLabel = allNav.find((item) => isActive(item))?.label || 'Shape Shifters Gym';
 
   const renderNavItem = (item) => (
@@ -128,17 +136,17 @@ export default function Layout({ children }) {
 
         <nav className="flex-1 overflow-y-auto mt-4 px-2 space-y-1 pb-4">
           <p className="px-3 text-[10px] uppercase tracking-wider text-gray-500 font-semibold mb-1">Gym Management</p>
-          {gymNav.map(renderNavItem)}
+          {visibleGymNav.map(renderNavItem)}
 
-          <div className="pt-4 mt-4 border-t border-gray-700">
+          {!isStaff && <div className="pt-4 mt-4 border-t border-gray-700">
             <p className="px-3 text-[10px] uppercase tracking-wider text-gray-500 font-semibold mb-1">Reports</p>
-            {reportsNav.map(renderNavItem)}
-          </div>
+            {visibleReportsNav.map(renderNavItem)}
+          </div>}
 
-          <div className="pt-4 mt-4 border-t border-gray-700">
+          {!isStaff && <div className="pt-4 mt-4 border-t border-gray-700">
             <p className="px-3 text-[10px] uppercase tracking-wider text-gray-500 font-semibold mb-1">Biometric / ZKTeco</p>
             {biometricNav.map(renderNavItem)}
-          </div>
+          </div>}
 
           {(isSuperAdmin || user?.role === 'admin') && (
             <div className="pt-4 mt-4 border-t border-gray-700">

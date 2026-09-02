@@ -4,6 +4,7 @@ import api from '../api';
 import { ArrowLeft, Edit, RotateCcw, ScanLine, CreditCard, User, UserX, Phone, Mail, MapPin, Calendar, History, Trash2, Save, X } from 'lucide-react';
 import { formatDisplayDate, formatDisplayDateTime } from '../utils/dateFormat';
 import { toTitleCaseDisplay } from '../utils/textFormat';
+import { useAuth } from '../context/AuthContext';
 
 function DateField({ value, onChange, className, required }) {
   return (
@@ -124,6 +125,8 @@ const activityChanges = (activity) => {
 export default function SubscriberDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const isStaff = user?.role === 'staff';
   const today = new Date().toISOString().split('T')[0];
   const [subscriber, setSubscriber] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -527,7 +530,7 @@ export default function SubscriberDetail() {
                   <th className="text-left py-2 px-3 font-medium text-gray-500">Method</th>
                   <th className="text-left py-2 px-3 font-medium text-gray-500">Period</th>
                   <th className="text-left py-2 px-3 font-medium text-gray-500">Status</th>
-                  <th className="text-right py-2 px-3 font-medium text-gray-500">Actions</th>
+                  {!isStaff && <th className="text-right py-2 px-3 font-medium text-gray-500">Actions</th>}
                 </tr>
               </thead>
               <tbody>
@@ -545,7 +548,7 @@ export default function SubscriberDetail() {
                         <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">Active</span>
                       )}
                     </td>
-                    <td className="py-2 px-3 text-right">
+                    {!isStaff && <td className="py-2 px-3 text-right">
                       {!p.deleted_at && (
                         <div className="flex items-center justify-end gap-1">
                           <button onClick={() => handleEditPayment(p)} className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Edit payment">
@@ -556,7 +559,7 @@ export default function SubscriberDetail() {
                           </button>
                         </div>
                       )}
-                    </td>
+                    </td>}
                   </tr>
                 ))}
               </tbody>

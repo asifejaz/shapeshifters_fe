@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Layout from './components/Layout';
 
@@ -32,6 +32,7 @@ const OrdersReport = lazy(() => import('./pages/reports/OrdersReport'));
 const SubscribersReport = lazy(() => import('./pages/reports/SubscribersReport'));
 const MonthlyRevenueReport = lazy(() => import('./pages/reports/MonthlyRevenueReport'));
 const SubscribersReportDetails = lazy(() => import('./pages/reports/SubscribersReportDetails'));
+const DailyEmailReports = lazy(() => import('./pages/reports/DailyEmailReports'));
 const PublicLayout = lazy(() => import('./pages/public/PublicLayout'));
 const HomePage = lazy(() => import('./pages/public/HomePage'));
 const PublicPage = lazy(() => import('./pages/public/PublicPage'));
@@ -44,6 +45,7 @@ const CartPage = lazy(() => import('./pages/public/CartPage'));
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
+  const location = useLocation();
 
   if (loading) {
     return (
@@ -54,6 +56,11 @@ function ProtectedRoute({ children }) {
   }
 
   if (!user) return <Navigate to="/login" />;
+
+  const staffAllowed = location.pathname === '/admin'
+    || location.pathname.startsWith('/admin/subscribers')
+    || location.pathname === '/admin/expenses';
+  if (user.role === 'staff' && !staffAllowed) return <Navigate to="/admin" replace />;
 
   return <Layout>{children}</Layout>;
 }
@@ -116,6 +123,7 @@ function App() {
             <Route path="/admin/reports/subscribers" element={<ProtectedRoute><SubscribersReport /></ProtectedRoute>} />
             <Route path="/admin/reports/monthly" element={<ProtectedRoute><MonthlyRevenueReport /></ProtectedRoute>} />
             <Route path="/admin/reports/subscribers/details" element={<ProtectedRoute><SubscribersReportDetails /></ProtectedRoute>} />
+            <Route path="/admin/reports/daily-email" element={<ProtectedRoute><DailyEmailReports /></ProtectedRoute>} />
             <Route path="/admin/users" element={<ProtectedRoute><AdminUsers /></ProtectedRoute>} />
 
             {/* Biometric / ZKTeco */}
