@@ -33,68 +33,34 @@ const downloadCsv = (filename, rows) => {
   URL.revokeObjectURL(url);
 };
 
-const accountingTransactions = (report) => {
-  const income = (report?.payments || []).map((payment) => ({
-    id: `P-${payment.id}`,
-    date: payment.payment_date,
-    type: 'Income',
-    particulars: `${payment.subscriber_name} - ${payment.category === 'new_member' ? 'New Member Fee' : 'Subscription'}`,
-    branch: payment.branch_name,
-    account: 'Membership Revenue',
-    source: payment.payment_method?.replace('_', ' '),
-    reference: payment.reference_number,
-    debit: 0,
-    credit: Number(payment.amount || 0),
-  }));
-
-  const expenses = (report?.expenses || []).map((expense) => ({
-    id: `E-${expense.id}`,
-    date: expense.expense_date,
-    type: 'Expense',
-    particulars: expense.description || expense.head_name,
-    branch: expense.branch_name,
-    account: expense.head_name,
-    source: `${expense.paid_by}${expense.payment_method ? ` (${expense.payment_method.replace('_', ' ')})` : ''}`,
-    reference: expense.reference_number,
-    debit: Number(expense.amount || 0),
-    credit: 0,
-  }));
-
-  return [...income, ...expenses].sort((a, b) => {
-    const dateComparison = String(a.date).localeCompare(String(b.date));
-    return dateComparison || a.id.localeCompare(b.id, undefined, { numeric: true });
-  });
-};
-
 const exportRevenueReport = (filename, report) => {
   const summary = report?.summary || {};
   const selectedBranchId = report?.filters?.branch_id || report?.branches?.selected_branch_id;
   const selectedBranch = report?.branches?.options?.find((branch) => String(branch.id) === String(selectedBranchId));
-  const transactions = accountingTransactions(report);
-  const netBalance = Number(summary.net_balance || 0);
-  let runningBalance = 0;
 
   const rows = [
-    ['SHAPE SHIFTERS - ACCOUNTING DEBIT / CREDIT STATEMENT'],
+    ['SHAPE SHIFTERS - MONTHLY SALES / COLLECTION REPORT'],
     ['Period Start', report?.start_date],
     ['Period End', report?.end_date],
     ['Branch', selectedBranch?.name || 'All Branches'],
+    ['Collection Basis', 'Payment Date'],
     [],
-    ['ACCOUNT SUMMARY'],
-    ['Description', 'Debit (Rs.)', 'Credit (Rs.)'],
-    ['Membership Revenue', '', summary.total_revenue],
-    ['Expenses', summary.total_expenses, ''],
-    ['TOTAL', summary.total_expenses, summary.total_revenue],
-    ['NET BALANCE (Credit - Debit)', netBalance < 0 ? Math.abs(netBalance) : '', netBalance >= 0 ? netBalance : ''],
+    ['MONTHLY SALES SUMMARY'],
+    ['Month', 'New Member Collections (Rs.)', 'Existing Member Collections (Rs.)', 'Total Collected (Rs.)', 'Expenses (Rs.)', 'Net (Rs.)'],
+    ...(report?.monthly || []).map((month) => [month.month, month.new_member_revenue, month.existing_member_revenue, month.total_collected ?? month.total_revenue, month.total_expenses, month.net_balance]),
     [],
-    ['DEBIT / CREDIT DETAILS'],
-    ['Date', 'Voucher', 'Type', 'Particulars', 'Category / Account', 'Branch', 'Paid By / Received Via', 'Reference', 'Debit (Rs.)', 'Credit (Rs.)', 'Running Balance (Rs.)'],
-    ...transactions.map((transaction) => {
-      runningBalance = Math.round((runningBalance + transaction.credit - transaction.debit) * 100) / 100;
-      return [transaction.date, transaction.id, transaction.type, transaction.particulars, transaction.account, transaction.branch, transaction.source, transaction.reference, transaction.debit || '', transaction.credit || '', runningBalance];
-    }),
+    ['PAYMENT COLLECTION DETAILS'],
+    ['Collection Date', 'Voucher', 'Member', 'Biometric ID', 'Collection Type', 'Branch', 'Method', 'Reference', 'Amount Collected (Rs.)'],
+    ...(report?.payments || []).map((payment) => [payment.payment_date, `P-${payment.id}`, payment.subscriber_name, payment.biometric_id, payment.category === 'new_member' ? 'New Member' : 'Existing Member Renewal', payment.branch_name, payment.payment_method?.replace('_', ' '), payment.reference_number, payment.amount]),
     [],
-    ['TOTAL', '', '', '', '', '', '', '', summary.total_expenses, summary.total_revenue, summary.net_balance],
+    ['EXPENSE DETAILS'],
+    ['Expense Date', 'Voucher', 'Expense Head', 'Description', 'Branch', 'Paid By', 'Method', 'Reference', 'Amount (Rs.)'],
+    ...(report?.expenses || []).map((expense) => [expense.expense_date, `E-${expense.id}`, expense.head_name, expense.description, expense.branch_name, expense.paid_by, expense.payment_method?.replace('_', ' '), expense.reference_number, expense.amount]),
+    [],
+    ['TOTALS', '', '', '', '', '', '', '', ''],
+    ['Total Collected', summary.total_collected ?? summary.total_revenue],
+    ['Total Expenses', summary.total_expenses],
+    ['Net Collections', summary.net_balance],
   ];
 
   downloadCsv(filename, rows);
@@ -164,8 +130,8 @@ export default function MonthlyRevenueReport() {
   };
 
   const summary = data?.summary || {};
-  const dailyRows = data?.daily || [];
-  const ledgerRows = data?.ledger || [];
+  const paymentRows = data?.payments || [];
+  const expenseRows = data?.expenses || [];
   const displayedMonth = data?.filters?.month || filters.month;
 
   if (loading && !data) {
@@ -175,8 +141,8 @@ export default function MonthlyRevenueReport() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-lg font-semibold text-gray-800">Monthly Report</h2>
-        <p className="mt-1 text-sm text-gray-500">Monthly income, categorized expenses, debit/credit entries, and net balance.</p>
+        <h2 className="text-lg font-semibold text-gray-800">Monthly Sales</h2>
+        <p className="mt-1 text-sm text-gray-500">Payments actually collected during each calendar month, based only on the Payment Date.</p>
       </div>
 
       {error && <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>}
@@ -230,35 +196,35 @@ export default function MonthlyRevenueReport() {
         </div>
 
         <div className="grid grid-cols-1 gap-px bg-gray-200 sm:grid-cols-2 xl:grid-cols-5">
-          <RevenueCard label="Total Revenue" value={money(summary.total_revenue)} detail={`${summary.total_payments || 0} payments`} tone="dark" />
+          <RevenueCard label="Total Collected" value={money(summary.total_collected ?? summary.total_revenue)} detail={`${summary.total_payments || 0} payments received this month`} tone="dark" />
           <RevenueCard label="Total Expenses" value={money(summary.total_expenses)} detail={`${summary.expense_entries || 0} expense entries`} tone="red" />
-          <RevenueCard label="Net Balance" value={money(summary.net_balance)} detail="Revenue less expenses" tone={Number(summary.net_balance) >= 0 ? 'green' : 'red'} />
-          <RevenueCard label="New Member Payments" value={money(summary.new_member_revenue)} detail={`${summary.new_member_payments || 0} payments from ${summary.new_members || 0} members`} tone="orange" />
-          <RevenueCard label="Existing Member Subscriptions" value={money(summary.existing_member_revenue)} detail={`${summary.existing_member_payments || 0} payments from ${summary.existing_members || 0} members`} tone="green" />
+          <RevenueCard label="Net Collections" value={money(summary.net_balance)} detail="Collections less expenses" tone={Number(summary.net_balance) >= 0 ? 'green' : 'red'} />
+          <RevenueCard label="New Member Collections" value={money(summary.new_member_revenue)} detail={`${summary.new_member_payments || 0} payments from ${summary.new_members || 0} members`} tone="orange" />
+          <RevenueCard label="Renewal Collections" value={money(summary.existing_member_revenue)} detail={`${summary.existing_member_payments || 0} payments from ${summary.existing_members || 0} members`} tone="green" />
         </div>
 
-        <div className="grid grid-cols-1 border-t border-gray-200 xl:grid-cols-[0.9fr_2.1fr]">
+        <div className="grid grid-cols-1 border-t border-gray-200 xl:grid-cols-[1.35fr_1fr]">
           <div className="border-b border-gray-200 xl:border-b-0 xl:border-r">
-            <div className="border-b bg-gray-50 px-4 py-3"><h4 className="text-sm font-semibold text-gray-800">Daily Breakdown</h4></div>
+            <div className="border-b bg-gray-50 px-4 py-3"><h4 className="text-sm font-semibold text-gray-800">Payment Collections</h4><p className="mt-0.5 text-xs text-gray-500">Every payment included in this month&apos;s sales total.</p></div>
             <div className="max-h-[560px] overflow-auto">
-              <table className="w-full text-sm">
-                <thead className="sticky top-0 bg-white shadow-sm"><tr className="text-left text-[10px] uppercase tracking-wide text-gray-500"><th className="px-4 py-2">Date</th><th className="px-4 py-2 text-right">Revenue</th><th className="px-4 py-2 text-right">Expenses</th><th className="px-4 py-2 text-right">Net</th></tr></thead>
+              <table className="w-full min-w-[720px] text-sm">
+                <thead className="sticky top-0 bg-white shadow-sm"><tr className="text-left text-[10px] uppercase tracking-wide text-gray-500"><th className="px-4 py-2">Collection Date</th><th className="px-4 py-2">Member</th><th className="px-4 py-2">Bio ID</th><th className="px-4 py-2">Type</th><th className="px-4 py-2">Method</th><th className="px-4 py-2 text-right">Collected</th></tr></thead>
                 <tbody>
-                  {dailyRows.map((row) => <tr key={row.date} className="border-t border-gray-100"><td className="px-4 py-2.5 font-medium text-gray-700">{formatDisplayDate(row.date)}</td><td className="px-4 py-2.5 text-right text-green-700"><span className="block">{money(row.total_revenue)}</span><span className="text-[10px] text-gray-400">{row.total_payments} payments</span></td><td className="px-4 py-2.5 text-right text-red-700"><span className="block">{money(row.total_expenses)}</span><span className="text-[10px] text-gray-400">{row.expense_entries} entries</span></td><td className={`px-4 py-2.5 text-right font-semibold ${Number(row.net_balance) < 0 ? 'text-red-700' : 'text-gray-900'}`}>{money(row.net_balance)}</td></tr>)}
-                  {dailyRows.length === 0 && <tr><td colSpan="4" className="px-4 py-8 text-center text-gray-500">No accounting entries in this month</td></tr>}
+                  {paymentRows.map((payment) => <tr key={payment.id} className="border-t border-gray-100"><td className="whitespace-nowrap px-4 py-2.5">{formatDisplayDate(payment.payment_date)}</td><td className="px-4 py-2.5"><p className="font-medium text-gray-900">{toTitleCaseDisplay(payment.subscriber_name)}</p><p className="text-xs text-gray-400">{payment.branch_name}</p></td><td className="px-4 py-2.5">{payment.biometric_id || '—'}</td><td className="px-4 py-2.5">{payment.category === 'new_member' ? 'New Member' : 'Renewal'}</td><td className="px-4 py-2.5 capitalize">{payment.payment_method?.replace('_', ' ')}</td><td className="px-4 py-2.5 text-right font-semibold text-green-700">{money(payment.amount)}</td></tr>)}
+                  {paymentRows.length === 0 && <tr><td colSpan="6" className="px-4 py-8 text-center text-gray-500">No payments collected in this month</td></tr>}
                 </tbody>
               </table>
             </div>
           </div>
 
           <div>
-            <div className="border-b bg-gray-50 px-4 py-3"><h4 className="text-sm font-semibold text-gray-800">Monthly Debit / Credit Sheet</h4></div>
+            <div className="border-b bg-gray-50 px-4 py-3"><h4 className="text-sm font-semibold text-gray-800">Expenses</h4><p className="mt-0.5 text-xs text-gray-500">Expenses recorded in the selected month.</p></div>
             <div className="max-h-[560px] overflow-auto">
-              <table className="w-full min-w-[900px] text-sm">
-                <thead className="sticky top-0 bg-white shadow-sm"><tr className="text-left text-[10px] uppercase tracking-wide text-gray-500"><th className="px-4 py-2">Date</th><th className="px-4 py-2">Description</th><th className="px-4 py-2">Category</th><th className="px-4 py-2">Debit Account</th><th className="px-4 py-2">Credit Account</th><th className="px-4 py-2 text-right">Debit</th><th className="px-4 py-2 text-right">Credit</th></tr></thead>
+              <table className="w-full min-w-[560px] text-sm">
+                <thead className="sticky top-0 bg-white shadow-sm"><tr className="text-left text-[10px] uppercase tracking-wide text-gray-500"><th className="px-4 py-2">Date</th><th className="px-4 py-2">Expense</th><th className="px-4 py-2">Paid By</th><th className="px-4 py-2 text-right">Amount</th></tr></thead>
                 <tbody>
-                  {ledgerRows.map((entry) => <LedgerRow key={entry.id} entry={entry} />)}
-                  {ledgerRows.length === 0 && <tr><td colSpan="7" className="px-4 py-8 text-center text-gray-500">No ledger entries found</td></tr>}
+                  {expenseRows.map((expense) => <tr key={expense.id} className="border-t border-gray-100"><td className="whitespace-nowrap px-4 py-2.5">{formatDisplayDate(expense.expense_date)}</td><td className="px-4 py-2.5"><p className="font-medium text-gray-900">{expense.head_name}</p><p className="text-xs text-gray-400">{expense.description || expense.branch_name}</p></td><td className="px-4 py-2.5">{expense.paid_by}</td><td className="px-4 py-2.5 text-right font-semibold text-red-700">{money(expense.amount)}</td></tr>)}
+                  {expenseRows.length === 0 && <tr><td colSpan="4" className="px-4 py-8 text-center text-gray-500">No expenses recorded in this month</td></tr>}
                 </tbody>
               </table>
             </div>
@@ -266,20 +232,6 @@ export default function MonthlyRevenueReport() {
         </div>
       </section>
     </div>
-  );
-}
-
-function LedgerRow({ entry }) {
-  return (
-    <tr className="border-t border-gray-100 hover:bg-gray-50">
-      <td className="whitespace-nowrap px-4 py-2.5">{formatDisplayDate(entry.date)}</td>
-      <td className="px-4 py-2.5"><p className="font-medium text-gray-900">{toTitleCaseDisplay(entry.description)}</p><p className="text-xs text-gray-400">{entry.branch_name}</p></td>
-      <td className="px-4 py-2.5"><span className={`rounded-full px-2 py-1 text-[10px] font-bold uppercase ${entry.entry_type === 'expense' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>{entry.category?.replace('_', ' ')}</span></td>
-      <td className="px-4 py-2.5">{entry.debit_account}</td>
-      <td className="px-4 py-2.5">{entry.credit_account}</td>
-      <td className="px-4 py-2.5 text-right font-semibold text-red-700">{entry.debit ? money(entry.debit) : '—'}</td>
-      <td className="px-4 py-2.5 text-right font-semibold text-green-700">{entry.credit ? money(entry.credit) : '—'}</td>
-    </tr>
   );
 }
 
