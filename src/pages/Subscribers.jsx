@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import api from '../api';
 import { Plus, Search, Eye, Edit, CreditCard, X } from 'lucide-react';
 import { formatDisplayDate } from '../utils/dateFormat';
@@ -24,7 +24,6 @@ export default function Subscribers() {
   const [savingQuickPayment, setSavingQuickPayment] = useState(false);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
-  const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
@@ -336,10 +335,26 @@ export default function Subscribers() {
               ) : (
                 subscribers.map((sub) => (
                   <tr key={sub.id} className="border-b border-gray-100 hover:bg-gray-50">
-                    <td className="py-3 px-4 font-mono text-xs">{sub.biometric_id || '-'}</td>
+                    <td className="py-3 px-4 font-mono text-xs">
+                      <Link
+                        to={`/admin/subscribers/${sub.id}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="hover:text-blue-600 hover:underline"
+                      >
+                        {sub.biometric_id || '-'}
+                      </Link>
+                    </td>
                     <td className="py-3 px-4">
                       <div>
-                        <p className="font-medium text-gray-800">{toTitleCaseDisplay(sub.name)}</p>
+                        <Link
+                          to={`/admin/subscribers/${sub.id}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="font-medium text-gray-800 hover:text-blue-600 hover:underline"
+                        >
+                          {toTitleCaseDisplay(sub.name)}
+                        </Link>
                         <p className="text-xs text-gray-400 capitalize">{sub.gender}</p>
                       </div>
                     </td>
@@ -365,20 +380,24 @@ export default function Subscribers() {
                     </td>
                     <td className="py-3 px-4">
                       <div className="flex items-center justify-end gap-1">
-                        <button
-                          onClick={() => navigate(`/admin/subscribers/${sub.id}`)}
+                        <Link
+                          to={`/admin/subscribers/${sub.id}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
                           className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                          title="View"
+                          title="View in new tab"
                         >
                           <Eye className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => navigate(`/admin/subscribers/${sub.id}/edit`)}
+                        </Link>
+                        <Link
+                          to={`/admin/subscribers/${sub.id}/edit`}
+                          target="_blank"
+                          rel="noopener noreferrer"
                           className="p-1.5 text-gray-400 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
-                          title="Edit"
+                          title="Edit in new tab"
                         >
                           <Edit className="w-4 h-4" />
-                        </button>
+                        </Link>
                         <button
                           onClick={() => openQuickPayment(sub)}
                           className="p-1.5 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
