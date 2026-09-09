@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import api from '../api';
 import { Plus, X, Save, Search } from 'lucide-react';
 import { formatDisplayDateTime } from '../utils/dateFormat';
+import SubscriberNewTabLink from '../components/SubscriberNewTabLink';
 
 export default function Checkins() {
   const [checkins, setCheckins] = useState([]);
@@ -171,7 +172,7 @@ export default function Checkins() {
             ) : checkins.map((c) => (
               <tr key={c.id} className="border-b border-gray-100 hover:bg-gray-50">
                 <td className="py-3 px-4">
-                  <p className="font-medium text-gray-800">{c.subscriber?.name}</p>
+                  <SubscriberNewTabLink subscriber={c.subscriber} className="font-medium text-gray-800" />
                   <p className="text-xs text-gray-400 font-mono">{c.subscriber?.member_id}</p>
                 </td>
                 <td className="py-3 px-4 text-gray-600">{c.branch?.name}</td>

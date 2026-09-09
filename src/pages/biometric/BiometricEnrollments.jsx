@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import api from '../../api';
 import { Plus, Trash2, X, Save, Fingerprint, Edit } from 'lucide-react';
 import { formatDisplayDate } from '../../utils/dateFormat';
+import SubscriberNewTabLink from '../../components/SubscriberNewTabLink';
 
 export default function BiometricEnrollments() {
   const [enrollments, setEnrollments] = useState([]);
@@ -152,7 +153,7 @@ export default function BiometricEnrollments() {
               <tr key={en.id} className="border-b border-gray-100 hover:bg-gray-50">
                 <td className="py-3 px-4">
                   <div>
-                    <p className="font-medium text-gray-800">{en.subscriber?.name || '—'}</p>
+                    <SubscriberNewTabLink subscriber={en.subscriber} className="font-medium text-gray-800" />
                     <p className="text-xs text-gray-400">{en.subscriber?.member_id}</p>
                   </div>
                 </td>

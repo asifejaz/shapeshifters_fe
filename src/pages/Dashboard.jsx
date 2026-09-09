@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import api from '../api';
 import { Users, UserCheck, AlertTriangle, Clock, ScanLine, Building2 } from 'lucide-react';
 import { formatDisplayDate } from '../utils/dateFormat';
+import SubscriberNewTabLink from '../components/SubscriberNewTabLink';
 
 export default function Dashboard() {
   const [data, setData] = useState(null);
@@ -82,7 +83,7 @@ export default function Dashboard() {
               {data.recent_checkins.map((checkin) => (
                 <div key={checkin.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                   <div>
-                    <p className="font-medium text-gray-700 text-sm">{checkin.subscriber?.name}</p>
+                    <SubscriberNewTabLink subscriber={checkin.subscriber} className="font-medium text-gray-700 text-sm" />
                     <p className="text-xs text-gray-400">{checkin.branch?.name}</p>
                   </div>
                   <div className="text-right">
@@ -124,7 +125,7 @@ export default function Dashboard() {
               {data.recent_subscribers.map((sub) => (
                 <tr key={sub.id} className="border-b border-gray-100">
                   <td className="py-2 px-3 font-mono text-xs">{sub.member_id}</td>
-                  <td className="py-2 px-3 font-medium text-gray-700">{sub.name}</td>
+                  <td className="py-2 px-3"><SubscriberNewTabLink subscriber={sub} className="font-medium text-gray-700" /></td>
                   <td className="py-2 px-3 text-gray-500">{sub.branch?.name}</td>
                   <td className="py-2 px-3 capitalize text-gray-500">{sub.session}</td>
                   <td className="py-2 px-3 text-gray-500">{formatDisplayDate(sub.subscription_end)}</td>

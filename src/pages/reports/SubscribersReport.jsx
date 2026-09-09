@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import api from '../../api';
 import { formatDisplayDate, formatDisplayMonth } from '../../utils/dateFormat';
 import { toTitleCaseDisplay } from '../../utils/textFormat';
+import SubscriberNewTabLink from '../../components/SubscriberNewTabLink';
 
 const money = (value) => `Rs. ${Number(value || 0).toLocaleString()}`;
 const csvEscape = (value) => {
@@ -217,7 +218,7 @@ export default function SubscribersReport() {
                   <td className="px-4 py-3 whitespace-nowrap">
                     {subscriber.is_deleted
                       ? <span className="font-medium text-gray-500">{toTitleCaseDisplay(subscriber.name)}</span>
-                      : <button onClick={() => navigate(`/admin/subscribers/${subscriber.id}`)} className="text-left font-medium text-gray-900 hover:text-orange-600 hover:underline">{toTitleCaseDisplay(subscriber.name)}</button>}
+                      : <SubscriberNewTabLink subscriber={subscriber} className="font-medium text-gray-900" />}
                     <p className="text-xs text-gray-400">{subscriber.member_id}</p>
                   </td>
                   <td className="px-4 py-3 font-semibold text-gray-800">{subscriber.biometric_id || '-'}</td>

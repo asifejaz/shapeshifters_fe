@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import api from '../../api';
 import { formatDisplayDate } from '../../utils/dateFormat';
+import SubscriberNewTabLink from '../../components/SubscriberNewTabLink';
 
 const csvEscape = (value) => `"${String(value ?? '').replace(/"/g, '""')}"`;
 
@@ -80,7 +81,7 @@ export default function SubscribersReportDetails() {
             {rows.map((s) => (
               <tr key={s.id} className="border-t">
                 <td className="px-4 py-2">{s.member_id}</td>
-                <td className="px-4 py-2">{s.name}</td>
+                <td className="px-4 py-2"><SubscriberNewTabLink subscriber={s} className="font-medium text-gray-900" /></td>
                 <td className="px-4 py-2">{s.phone}</td>
                 <td className="px-4 py-2 capitalize">{s.status}</td>
                 <td className="px-4 py-2">{s.branch?.name || '-'}</td>

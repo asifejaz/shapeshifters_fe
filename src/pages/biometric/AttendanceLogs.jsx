@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import api from '../../api';
 import { ClipboardList, ChevronLeft, ChevronRight, Upload, FileSpreadsheet, X, CheckCircle2, AlertTriangle } from 'lucide-react';
+import SubscriberNewTabLink from '../../components/SubscriberNewTabLink';
 
 const statusLabels = { check_in: 'Check In', check_out: 'Check Out', break_in: 'Break In', break_out: 'Break Out', overtime_in: 'OT In', overtime_out: 'OT Out' };
 const statusColors = {
@@ -198,7 +199,7 @@ export default function AttendanceLogs() {
                 <td className="py-3 px-4">
                   {log.subscriber ? (
                     <div>
-                      <p className="font-medium text-gray-800">{log.subscriber.name}</p>
+                      <SubscriberNewTabLink subscriber={log.subscriber} className="font-medium text-gray-800" />
                       <p className="text-xs text-gray-400">{log.subscriber.member_id}</p>
                     </div>
                   ) : (

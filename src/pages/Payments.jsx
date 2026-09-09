@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import api from '../api';
 import { Plus, X, Save, Search, Trash2, Edit } from 'lucide-react';
 import { formatDisplayDate } from '../utils/dateFormat';
+import SubscriberNewTabLink from '../components/SubscriberNewTabLink';
 
 export default function Payments() {
   const [payments, setPayments] = useState([]);
@@ -187,7 +188,7 @@ export default function Payments() {
             ) : payments.map((p) => (
               <tr key={p.id} className={`border-b border-gray-100 hover:bg-gray-50 ${p.deleted_at ? 'bg-red-50/50 text-gray-400' : ''}`}>
                 <td className="py-3 px-4">
-                  <p className="font-medium text-gray-800">{p.subscriber?.name}</p>
+                  <SubscriberNewTabLink subscriber={p.subscriber} className="font-medium text-gray-800" />
                   <p className="text-xs text-gray-400 font-mono">{p.subscriber?.member_id}</p>
                 </td>
                 <td className="py-3 px-4 font-medium text-gray-800">Rs. {p.amount}</td>
