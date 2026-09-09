@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import api from '../api';
-import { Plus, Search, Eye, Edit, CreditCard, X, MessageCircle, MessageSquare } from 'lucide-react';
+import { Plus, Search, Eye, Edit, CreditCard, X } from 'lucide-react';
 import { formatDisplayDate } from '../utils/dateFormat';
 import { toTitleCaseDisplay } from '../utils/textFormat';
-import { hasPendingFee, memberSmsUrl, memberWhatsappUrl } from '../utils/memberMessaging';
+import FeeReminderActions from '../components/FeeReminderActions';
 
 export default function Subscribers() {
   const [subscribers, setSubscribers] = useState([]);
@@ -406,26 +406,7 @@ export default function Subscribers() {
                         >
                           <CreditCard className="w-4 h-4" />
                         </button>
-                        {hasPendingFee(sub) && (
-                          <>
-                            <a
-                              href={memberWhatsappUrl(sub)}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="p-1.5 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
-                              title="Send fee reminder via WhatsApp"
-                            >
-                              <MessageCircle className="w-4 h-4" />
-                            </a>
-                            <a
-                              href={memberSmsUrl(sub)}
-                              className="p-1.5 text-gray-400 hover:text-sky-600 hover:bg-sky-50 rounded-lg transition-colors"
-                              title="Send fee reminder via SMS"
-                            >
-                              <MessageSquare className="w-4 h-4" />
-                            </a>
-                          </>
-                        )}
+                        <FeeReminderActions subscriber={sub} compact />
                       </div>
                     </td>
                   </tr>

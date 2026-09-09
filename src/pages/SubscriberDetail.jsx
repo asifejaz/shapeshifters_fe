@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import api from '../api';
-import { ArrowLeft, Edit, RotateCcw, ScanLine, CreditCard, User, UserX, Phone, Mail, MapPin, Calendar, History, Trash2, Save, X, MessageCircle, MessageSquare } from 'lucide-react';
+import { ArrowLeft, Edit, RotateCcw, ScanLine, CreditCard, User, UserX, Phone, Mail, MapPin, Calendar, History, Trash2, Save, X } from 'lucide-react';
 import { formatDisplayDate, formatDisplayDateTime } from '../utils/dateFormat';
 import { toTitleCaseDisplay } from '../utils/textFormat';
-import { hasPendingFee, memberSmsUrl, memberWhatsappUrl } from '../utils/memberMessaging';
+import FeeReminderActions from '../components/FeeReminderActions';
 import { useAuth } from '../context/AuthContext';
 
 function DateField({ value, onChange, className, required }) {
@@ -312,7 +312,6 @@ export default function SubscriberDetail() {
   const sub = subscriber;
   const isExpired = new Date(sub.subscription_end) < new Date();
   const isInactive = sub.status === 'inactive';
-  const canSendFeeReminder = hasPendingFee(sub);
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -327,26 +326,7 @@ export default function SubscriberDetail() {
           </div>
         </div>
         <div className="flex flex-wrap justify-end gap-2">
-          {canSendFeeReminder && (
-            <>
-              <a
-                href={memberWhatsappUrl(sub)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-4 py-2 border border-green-200 bg-white hover:bg-green-50 text-green-700 rounded-lg text-sm font-medium flex items-center gap-2"
-                title="Open WhatsApp with a fee reminder"
-              >
-                <MessageCircle className="w-4 h-4" /> WhatsApp
-              </a>
-              <a
-                href={memberSmsUrl(sub)}
-                className="px-4 py-2 border border-sky-200 bg-white hover:bg-sky-50 text-sky-700 rounded-lg text-sm font-medium flex items-center gap-2"
-                title="Open SMS with a fee reminder"
-              >
-                <MessageSquare className="w-4 h-4" /> SMS
-              </a>
-            </>
-          )}
+          <FeeReminderActions subscriber={sub} />
           {!isInactive && (
             <>
               <button
