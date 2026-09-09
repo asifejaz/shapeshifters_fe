@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import api from '../api';
-import { Plus, Search, Eye, Edit, CreditCard, X } from 'lucide-react';
+import { Plus, Search, Eye, Edit, CreditCard, ExternalLink, X } from 'lucide-react';
 import { formatDisplayDate } from '../utils/dateFormat';
 import { toTitleCaseDisplay } from '../utils/textFormat';
 import FeeReminderActions from '../components/FeeReminderActions';
@@ -352,9 +352,11 @@ export default function Subscribers() {
                           to={`/admin/subscribers/${sub.id}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="font-medium text-gray-800 hover:text-blue-600 hover:underline"
+                          className="inline-flex items-center gap-1 font-medium text-gray-800 hover:text-blue-600 hover:underline"
+                          title="Open member details in a new tab"
                         >
                           {toTitleCaseDisplay(sub.name)}
+                          <ExternalLink className="h-3.5 w-3.5 text-gray-400" aria-hidden="true" />
                         </Link>
                         <p className="text-xs text-gray-400 capitalize">{sub.gender}</p>
                       </div>
