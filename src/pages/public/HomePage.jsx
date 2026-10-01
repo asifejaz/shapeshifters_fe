@@ -4,6 +4,10 @@ import api from '../../api';
 import { useSiteData } from './PublicLayout';
 import { ArrowRight, Calculator, Package } from 'lucide-react';
 import heroImage from '../../assets/new-design/hero-athlete.jpg';
+import strengthHero from '../../assets/hero-slides/strength-starts-today.webp';
+import womenHero from '../../assets/hero-slides/womens-strength.webp';
+import coachingHero from '../../assets/hero-slides/coaching-progress.webp';
+import branchesHero from '../../assets/hero-slides/three-branches.webp';
 import trainingImg from '../../assets/new-design/pillar-training.jpg';
 import fitnessImg from '../../assets/new-design/pillar-fitness.jpg';
 import nutritionImg from '../../assets/new-design/pillar-nutrition.jpg';
@@ -13,11 +17,39 @@ import { trainingGuides } from './trainingGuideData';
 
 const pillarImages = [trainingImg, fitnessImg, nutritionImg];
 const marqueeWords = ['Conditioning', 'Hypertrophy', 'Metabolic Burn', 'Olympic Lifting', 'Mobility', 'Recovery'];
-const fallbackHeroSlides = [
-  { image_url: heroImage, title: 'The Shift Starts Here', subtitle: 'A serious training environment for people ready to work.' },
-  { image_url: trainingImg, title: 'Train With Purpose', subtitle: 'Coach-led strength and conditioning built around real progress.' },
-  { image_url: fitnessImg, title: 'Built For The Hustle', subtitle: 'Modern equipment, focused spaces, and energy that keeps you moving.' },
-  { image_url: nutritionImg, title: 'Fuel Every Session', subtitle: 'Practical fitness and nutrition guidance without the noise.' },
+const campaignHeroSlides = [
+  {
+    image_url: strengthHero,
+    badge: 'Strength · Coaching · Progress',
+    title: 'Stronger Starts Today',
+    subtitle: 'Build strength with expert coaching, progressive training, and a standard that never slips.',
+    button_text: 'Start Training', button_url: '/contact',
+    secondary_text: 'Explore Programs', secondary_url: '/programs',
+  },
+  {
+    image_url: womenHero,
+    badge: 'Women’s Fitness · Confidence',
+    title: 'Your Space Your Strength',
+    subtitle: 'A welcoming women’s training environment built for confidence, fitness, and lasting progress.',
+    button_text: 'Explore Women’s Plans', button_url: '/guides/women-fitness',
+    secondary_text: 'All Training Guides', secondary_url: '/guides',
+  },
+  {
+    image_url: coachingHero,
+    badge: 'Technique · Accountability · Results',
+    title: 'Coaching Changes Everything',
+    subtitle: 'Train with precise technique, a clear progression plan, and coaches invested in every rep.',
+    button_text: 'View Programs', button_url: '/programs',
+    secondary_text: 'Free Calculators', secondary_url: '/calculators',
+  },
+  {
+    image_url: branchesHero,
+    badge: 'Wah Cantt · Three Locations',
+    title: 'Three Branches One Standard',
+    subtitle: 'Choose the Shape Shifters location that fits your routine and start your next chapter.',
+    button_text: 'Find Your Branch', button_url: '/contact',
+    secondary_text: 'Contact Us', secondary_url: '/contact',
+  },
 ];
 const calculatorLinks = [
   ['BMI', 'bmi'], ['Calories & TDEE', 'calories'], ['Macros', 'macros'], ['Protein', 'protein'],
@@ -43,7 +75,7 @@ export default function HomePage() {
   const sliders = siteData?.sliders || [];
   const branches = siteData?.branches || [];
   const settings = siteData?.settings || {};
-  const heroSlides = sliders.length > 0 ? sliders : fallbackHeroSlides;
+  const heroSlides = [...campaignHeroSlides, ...sliders];
   const shopEnabled = ['true', '1', true, 1].includes(settings.shop_enabled);
 
   useEffect(() => {
@@ -70,8 +102,9 @@ export default function HomePage() {
   const heroIntro = activeSlide?.subtitle || settings.hero_subtitle || 'Discipline-first training, coach-led programs, and a room built for people who show up.';
   const heroCtaText = activeSlide?.button_text || settings.hero_cta_text || 'Get Started';
   const heroCtaUrl = activeSlide?.button_url || settings.hero_cta_url || '/contact';
-  const secondaryText = settings.hero_secondary_text || 'View Programs';
-  const secondaryUrl = settings.hero_secondary_url || '/programs';
+  const heroBadge = activeSlide?.badge || settings.hero_badge || 'New Cycle · 2026';
+  const secondaryText = activeSlide?.secondary_text || settings.hero_secondary_text || 'View Programs';
+  const secondaryUrl = activeSlide?.secondary_url || settings.hero_secondary_url || '/programs';
 
   const pillars = useMemo(() => [1, 2, 3].map((n, i) => ({
     index: `0${n}`,
@@ -108,10 +141,11 @@ export default function HomePage() {
       <section className="mx-auto max-w-screen-xl px-6 pt-8 pb-4">
         <div className="md:h-[680px]">
           <div className="animate-reveal group relative h-full overflow-hidden bg-ink">
-            <img src={activeSlide?.image_url || heroImage} alt={heroTitle} className="h-72 w-full object-cover opacity-90 grayscale transition-transform duration-[1200ms] group-hover:scale-105 md:h-full" />
-            <div className="absolute inset-0 bg-gradient-to-t from-ink/80 via-ink/10 to-transparent" />
+            <img key={activeSlide?.image_url} src={activeSlide?.image_url || heroImage} alt={heroTitle} className="animate-reveal h-72 w-full object-cover object-[68%_center] opacity-95 transition-transform duration-[1200ms] group-hover:scale-105 md:h-full md:object-center" />
+            <div className="absolute inset-0 bg-gradient-to-r from-ink/60 via-transparent to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-ink/90 via-ink/10 to-transparent" />
             <div className="absolute top-6 left-6 flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.22em] text-paper/70">
-              <span className="h-px w-8 bg-paper/50" /> {settings.hero_badge || 'New Cycle · 2026'}
+              <span className="h-px w-8 bg-paper/50" /> {heroBadge}
             </div>
             <div className="absolute right-6 bottom-8 left-6">
               <h1 className="font-display text-6xl leading-[0.85] text-paper uppercase text-balance sm:text-7xl md:text-[8rem]">
@@ -131,7 +165,7 @@ export default function HomePage() {
           </Link>
           {heroSlides.length > 1 && (
             <div className="ml-auto flex items-center gap-2">
-              {heroSlides.map((_, i) => <button key={i} onClick={() => setCurrentSlide(i)} className={`h-2 w-8 transition-colors ${i === currentSlide ? 'bg-ember' : 'bg-ink/15'}`} aria-label={`Go to slide ${i + 1}`} />)}
+              {heroSlides.map((slide, i) => <button key={`${slide.title}-${i}`} onClick={() => setCurrentSlide(i)} className={`h-2 transition-all ${i === currentSlide ? 'w-12 bg-ember' : 'w-7 bg-ink/15 hover:bg-ink/30'}`} aria-label={`Go to slide ${i + 1}: ${slide.title || 'Hero slide'}`} />)}
             </div>
           )}
         </div>
