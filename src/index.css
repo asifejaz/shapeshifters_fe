@@ -201,6 +201,12 @@ body {
   letter-spacing: 0.01em;
 }
 
+.ss-theme .font-section {
+  font-family: "Barlow Condensed", "Arial Narrow", sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+}
+
 .ss-theme .font-mono {
   font-family: "JetBrains Mono", "Courier New", monospace;
 }

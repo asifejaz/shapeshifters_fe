@@ -71,23 +71,19 @@ export default function HomePage() {
   const [homepage, setHomepage] = useState(null);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [featuredProducts, setFeaturedProducts] = useState([]);
-  const [posters, setPosters] = useState([]);
   const branches = siteData?.branches || [];
-  const settings = siteData?.settings || {};
+  const settings = useMemo(() => siteData?.settings || {}, [siteData?.settings]);
   const heroSlides = campaignHeroSlides;
   const shopEnabled = ['true', '1', true, 1].includes(settings.shop_enabled);
 
   useEffect(() => {
     api.get('/public/homepage').then((res) => setHomepage(res.data)).catch(() => null);
-    api.get('/public/posters').then((res) => setPosters(res.data || [])).catch(() => setPosters([]));
   }, []);
 
   useEffect(() => {
-    if (!shopEnabled) {
-      setFeaturedProducts([]);
-      return;
-    }
+    if (!shopEnabled) return undefined;
     api.get('/shop/products?featured=1&in_stock=1').then((res) => setFeaturedProducts(res.data || [])).catch(() => setFeaturedProducts([]));
+    return undefined;
   }, [shopEnabled]);
 
   useEffect(() => {
@@ -116,63 +112,43 @@ export default function HomePage() {
     image: pillarImages[i],
   })), [settings]);
 
-  const posterWallItems = useMemo(() => {
-    if (posters.length > 0) {
-      return [...posters]
-        .sort(() => Math.random() - 0.5)
-        .slice(0, 5)
-        .map((poster) => ({
-      title: poster.title,
-      series: poster.series || 'Poster Series',
-      quote: poster.quote,
-      imageUrl: poster.image_url,
-        }));
-    }
-
-    return ['Mind Series', 'Iron Series', 'Discipline Series', 'Grit Series', 'Ritual Series'].map((series) => ({
-      title: 'Coming Soon',
-      series,
-    }));
-  }, [posters]);
-
   return (
     <>
-      <section className="mx-auto max-w-screen-xl px-6 pt-8 pb-4">
-        <div className="md:h-[680px]">
+      <section className="mx-auto max-w-screen-xl px-6 pt-6 pb-10">
+        <div className="h-[560px] sm:h-[600px] md:h-[580px]">
           <div className="animate-reveal group relative h-full overflow-hidden bg-ink">
-            <img key={activeSlide?.image_url} src={activeSlide?.image_url || heroImage} alt={heroTitle} className="animate-reveal h-72 w-full object-cover object-[68%_center] opacity-95 transition-transform duration-[1200ms] group-hover:scale-105 md:h-full md:object-center" />
+            <img key={activeSlide?.image_url} src={activeSlide?.image_url || heroImage} alt={heroTitle} className="animate-reveal h-full w-full object-cover object-[68%_center] opacity-95 transition-transform duration-[1200ms] group-hover:scale-105 md:object-center" />
             <div className="absolute inset-0 bg-gradient-to-r from-ink/60 via-transparent to-transparent" />
             <div className="absolute inset-0 bg-gradient-to-t from-ink/90 via-ink/10 to-transparent" />
             <div className="absolute top-6 left-6 flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.22em] text-paper/70">
               <span className="h-px w-8 bg-paper/50" /> {heroBadge}
             </div>
+            {heroSlides.length > 1 && (
+              <div className="absolute top-6 right-6 hidden items-center gap-2 sm:flex">
+                {heroSlides.map((slide, i) => <button key={`${slide.title}-${i}`} onClick={() => setCurrentSlide(i)} className={`h-2 transition-all ${i === currentSlide ? 'w-12 bg-ember' : 'w-7 bg-paper/30 hover:bg-paper/60'}`} aria-label={`Go to slide ${i + 1}: ${slide.title || 'Hero slide'}`} />)}
+              </div>
+            )}
             <div className="absolute right-6 bottom-8 left-6">
-              <h1 className="font-display text-6xl leading-[0.85] text-paper uppercase text-balance sm:text-7xl md:text-[8rem]">
+              <h1 className="max-w-5xl font-display text-5xl leading-[0.85] text-paper uppercase text-balance sm:text-7xl md:text-[6.75rem]">
                 {firstWords(heroTitle, 2)}<br />{restWords(heroTitle, 2)}
               </h1>
-              <p className="mt-6 max-w-md text-sm leading-relaxed text-paper/75">{heroIntro}</p>
+              <p className="mt-4 max-w-lg text-sm leading-relaxed text-paper/80">{heroIntro}</p>
+              <div className="mt-6 flex flex-wrap gap-3">
+                <Link to={heroCtaUrl} className="inline-flex items-center gap-2 bg-ember px-6 py-3 font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-white transition-colors hover:bg-paper hover:text-ink">
+                  {heroCtaText} <ArrowRight className="h-4 w-4" />
+                </Link>
+                <Link to={secondaryUrl} className="inline-flex items-center gap-2 border border-paper/50 bg-ink/20 px-6 py-3 font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-paper backdrop-blur-sm transition-colors hover:border-paper hover:bg-paper hover:text-ink">
+                  {secondaryText}
+                </Link>
+              </div>
             </div>
           </div>
-        </div>
-
-        <div className="mt-6 flex flex-wrap items-center gap-3">
-          <Link to={heroCtaUrl} className="inline-flex items-center gap-2 bg-ink px-6 py-3 font-mono text-[11px] font-semibold uppercase tracking-[0.22em] text-paper transition-colors hover:bg-ember">
-            {heroCtaText} <ArrowRight className="h-4 w-4" />
-          </Link>
-          <Link to={secondaryUrl} className="inline-flex items-center gap-2 border border-ink/20 px-6 py-3 font-mono text-[11px] font-semibold uppercase tracking-[0.22em] transition-colors hover:bg-paper-dim">
-            {secondaryText}
-          </Link>
-          {heroSlides.length > 1 && (
-            <div className="ml-auto flex items-center gap-2">
-              {heroSlides.map((slide, i) => <button key={`${slide.title}-${i}`} onClick={() => setCurrentSlide(i)} className={`h-2 transition-all ${i === currentSlide ? 'w-12 bg-ember' : 'w-7 bg-ink/15 hover:bg-ink/30'}`} aria-label={`Go to slide ${i + 1}: ${slide.title || 'Hero slide'}`} />)}
-            </div>
-          )}
         </div>
       </section>
 
       <section className="mx-auto max-w-screen-xl px-6 py-20">
         <div className="mb-10 flex flex-wrap items-end justify-between gap-4 border-b border-ink py-4">
-          <div><span className="font-mono text-[10px] uppercase tracking-[0.3em] text-ember">Three locations · One standard</span><h2 className="mt-3 font-display text-5xl uppercase md:text-6xl">Choose Your Branch</h2></div>
+          <div><span className="font-mono text-[10px] uppercase tracking-[0.3em] text-ember">Three locations · One standard</span><h2 className="mt-3 font-section text-5xl uppercase md:text-6xl">Choose Your Branch</h2></div>
           <p className="max-w-md text-sm text-ink-muted">Tell the branch what service you need, then continue the conversation directly on WhatsApp.</p>
         </div>
         <BranchContactCards branches={branches} />
@@ -183,7 +159,7 @@ export default function HomePage() {
           <div className="mb-10 flex flex-wrap items-end justify-between gap-4 border-b border-ink py-4">
             <div>
               <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-ember">Shop · Featured</span>
-              <h2 className="mt-3 font-display text-5xl uppercase md:text-6xl">Featured Products</h2>
+              <h2 className="mt-3 font-section text-5xl uppercase md:text-6xl">Featured Products</h2>
             </div>
             <Link to="/shop" className="font-mono text-[11px] font-semibold uppercase tracking-[0.22em] hover:text-ember">View shop →</Link>
           </div>
@@ -198,7 +174,7 @@ export default function HomePage() {
                   </div>
                   <div className="p-5">
                     <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-ink/40">Product · {String(index + 1).padStart(2, '0')}</div>
-                    <h3 className="mt-3 font-display text-2xl uppercase leading-none group-hover:text-ember">{product.name}</h3>
+                    <h3 className="mt-3 font-section text-2xl uppercase leading-none group-hover:text-ember">{product.name}</h3>
                     <p className="mt-3 text-sm font-semibold text-ink">Rs. {product.final_price || product.price}</p>
                   </div>
                 </Link>
@@ -220,71 +196,34 @@ export default function HomePage() {
 
       <section className="mx-auto max-w-screen-xl px-6 py-24">
         <div className="grid grid-cols-1 gap-8 border border-ink/10 bg-paper-dim p-8 md:grid-cols-[1.15fr_0.85fr] md:items-end md:p-12">
-          <div><span className="font-mono text-[10px] uppercase tracking-[0.3em] text-ember">Free fitness tools</span><h2 className="mt-4 font-display text-5xl uppercase leading-[0.9] md:text-7xl">Calculate.<br />Plan. Train.</h2><p className="mt-6 max-w-xl text-sm leading-relaxed text-ink-muted">BMI, calories, macros, protein, hydration, body-fat estimates, strength percentages, barbell plates, running pace, and goal timelines—all in one place.</p></div>
-          <div><div className="grid grid-cols-2 gap-2">{calculatorLinks.map(([label, tool]) => <Link key={tool} to={`/calculators?tool=${tool}`} className="border border-ink/15 bg-paper px-4 py-3 font-mono text-[9px] font-semibold uppercase tracking-[0.16em] transition hover:border-ember hover:text-ember">{label} →</Link>)}</div><Link to="/calculators" className="mt-3 inline-flex w-full items-center justify-center gap-3 bg-ink px-7 py-5 font-mono text-[11px] font-semibold uppercase tracking-[0.22em] text-paper transition-colors hover:bg-ember"><Calculator className="h-5 w-5" /> View all calculators <ArrowRight className="h-4 w-4" /></Link></div>
+          <div><span className="font-mono text-[10px] uppercase tracking-[0.3em] text-ember">Free fitness tools</span><h2 className="mt-4 font-section text-5xl uppercase leading-[0.9] md:text-7xl">Calculate.<br />Plan. Train.</h2><p className="mt-6 max-w-xl text-sm leading-relaxed text-ink-muted">BMI, calories, macros, protein, hydration, body-fat estimates, strength percentages, barbell plates, running pace, and goal timelines—all in one place.</p></div>
+          <div><div className="grid grid-cols-2 gap-2">{calculatorLinks.map(([label, tool]) => <Link key={tool} to={`/calculators?tool=${tool}`} className="border border-ink/15 bg-paper px-4 py-3 font-mono text-[10px] font-semibold uppercase tracking-[0.14em] transition hover:border-ember hover:text-ember">{label} →</Link>)}</div><Link to="/calculators" className="mt-3 inline-flex w-full items-center justify-center gap-3 bg-ember px-7 py-5 font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-white transition-colors hover:bg-ink"><Calculator className="h-5 w-5" /> View all calculators <ArrowRight className="h-4 w-4" /></Link></div>
         </div>
       </section>
 
       <section className="bg-ink text-paper">
         <div className="mx-auto max-w-screen-xl px-6 py-24">
-          <div className="mb-10 flex flex-wrap items-end justify-between gap-5 border-b border-paper/15 pb-5"><div><span className="font-mono text-[10px] uppercase tracking-[0.3em] text-ember">Exercise + Pakistani food</span><h2 className="mt-3 font-display text-5xl uppercase md:text-6xl">Weekly Training Guides</h2></div><Link to="/guides" className="font-mono text-[10px] font-semibold uppercase tracking-[0.22em] hover:text-ember">View all plans →</Link></div>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">{trainingGuides.map((guide) => <Link key={guide.slug} to={`/guides/${guide.slug}`} className="group border border-paper/10 bg-paper/5 transition hover:border-ember"><div className="aspect-[3/2] overflow-hidden"><img src={guide.image} alt="" loading="lazy" className="h-full w-full object-cover opacity-85 transition duration-700 group-hover:scale-105 group-hover:opacity-100" /></div><div className="p-5"><span className="font-mono text-[9px] uppercase tracking-[0.2em] text-ember">{guide.audience}</span><h3 className="mt-2 font-display text-2xl uppercase leading-none">{guide.shortTitle}</h3><span className="mt-5 inline-flex items-center gap-2 font-mono text-[9px] uppercase tracking-[0.2em] text-paper/60 group-hover:text-ember">Open guide <ArrowRight className="h-3.5 w-3.5" /></span></div></Link>)}</div>
+          <div className="mb-10 flex flex-wrap items-end justify-between gap-5 border-b border-paper/15 pb-5"><div><span className="font-mono text-[10px] uppercase tracking-[0.3em] text-ember">Exercise + Pakistani food</span><h2 className="mt-3 font-section text-5xl uppercase md:text-6xl">Weekly Training Guides</h2></div><Link to="/guides" className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] hover:text-ember">View all plans →</Link></div>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">{trainingGuides.map((guide) => <Link key={guide.slug} to={`/guides/${guide.slug}`} className="group border border-paper/10 bg-paper/5 transition hover:border-ember"><div className="aspect-[3/2] overflow-hidden"><img src={guide.image} alt="" loading="lazy" className="h-full w-full object-cover opacity-90 transition duration-700 group-hover:scale-105 group-hover:opacity-100" /></div><div className="p-5"><span className="font-mono text-[10px] uppercase tracking-[0.16em] text-ember">{guide.audience}</span><h3 className="mt-2 font-section text-2xl uppercase leading-none">{guide.shortTitle}</h3><span className="mt-5 inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.16em] text-paper/70 group-hover:text-ember">Open guide <ArrowRight className="h-3.5 w-3.5" /></span></div></Link>)}</div>
         </div>
       </section>
 
       <section id="pillars" className="mx-auto max-w-screen-xl px-6 py-24">
         <div className="mb-12 flex flex-wrap items-baseline justify-between gap-4 border-b border-ink py-4">
-          <h2 className="font-display text-5xl uppercase md:text-6xl">{settings.pillars_heading || 'Three Pillars'}</h2>
+          <h2 className="font-section text-5xl uppercase md:text-6xl">{settings.pillars_heading || 'Three Pillars'}</h2>
           <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-ink/50">Core Methodology · 01 / 03</span>
         </div>
         <div className="grid grid-cols-1 gap-px border border-ink/10 bg-ink/10 md:grid-cols-3">
           {pillars.map((pillar) => (
             <article key={pillar.title} className="group bg-paper p-8 transition-colors hover:bg-paper-dim md:p-10">
               <span className="mb-10 block font-mono text-[10px] tracking-[0.22em] text-ink/50">{pillar.index} / 03</span>
-              <h3 className="mb-4 font-display text-4xl uppercase">{pillar.title}</h3>
+              <h3 className="mb-4 font-section text-4xl uppercase">{pillar.title}</h3>
               <p className="mb-8 max-w-xs text-sm leading-relaxed text-ink-muted">{pillar.body}</p>
               <div className="aspect-square overflow-hidden bg-paper-dim">
-                <img src={pillar.image} alt={pillar.title} loading="lazy" className="h-full w-full object-cover grayscale transition-transform duration-[900ms] group-hover:scale-105" />
+                <img src={pillar.image} alt={pillar.title} loading="lazy" className="h-full w-full object-cover saturate-[0.88] contrast-[1.04] transition duration-[900ms] group-hover:scale-105 group-hover:saturate-100" />
               </div>
             </article>
           ))}
-        </div>
-      </section>
-
-      <section className="bg-ink text-paper">
-        <div className="mx-auto max-w-screen-xl px-6 py-24">
-          <div className="mb-12 flex flex-wrap items-end justify-between gap-6 border-b border-paper/10 pb-6">
-            <div>
-              <span className="mb-4 block font-mono text-[10px] uppercase tracking-[0.22em] text-paper/50">(05) Poster Series</span>
-              <h2 className="font-display text-5xl uppercase leading-[0.9] md:text-7xl">Strength <br className="hidden md:block" />Starts Within</h2>
-              <p className="mt-6 max-w-md text-sm text-paper/60">A space for motivational posters and campaign drops managed through the Posters page content.</p>
-            </div>
-            <Link to="/posters" className="inline-flex items-center gap-2 border-b border-paper pb-1 font-mono text-[11px] font-semibold uppercase tracking-[0.22em] transition-opacity hover:opacity-70">View Posters →</Link>
-          </div>
-          <div className="-mx-6 flex snap-x snap-mandatory gap-6 overflow-x-auto px-6 pb-4">
-            {posterWallItems.map((poster) => (
-              <Link key={`${poster.series}-${poster.title}`} to="/posters" className="group w-[280px] shrink-0 snap-start md:w-[340px]">
-                <div className="relative aspect-[3/4] overflow-hidden bg-ink-muted ring-1 ring-paper/5 transition-transform duration-500 group-hover:-translate-y-1">
-                  {poster.imageUrl ? (
-                    <img src={poster.imageUrl} alt={poster.title} loading="lazy" className="h-full w-full object-cover" />
-                  ) : (
-                    <div className="flex h-full w-full flex-col items-center justify-center gap-3 p-6 text-center">
-                      <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-paper/30">{poster.series}</span>
-                      <span className="font-display text-3xl uppercase text-paper/50">Coming Soon</span>
-                      <span className="h-px w-8 bg-paper/20" />
-                    </div>
-                  )}
-                  <span className="absolute top-3 right-3 bg-ink px-2 py-1 font-mono text-[9px] uppercase tracking-[0.22em] text-paper/60 opacity-0 transition-opacity group-hover:bg-ember group-hover:text-paper group-hover:opacity-100">
-                    {poster.series}
-                  </span>
-                </div>
-                <div className="mt-4 font-mono text-[10px] uppercase tracking-[0.22em] text-paper/80">
-                  {poster.title}
-                </div>
-                {poster.quote && <p className="mt-2 max-w-[38ch] text-xs italic text-paper/60">“{poster.quote}”</p>}
-              </Link>
-            ))}
-          </div>
         </div>
       </section>
 

@@ -147,7 +147,7 @@ export default function PublicLayout() {
               <img src={logo} alt={settings.site_name || 'Shape Shifters'} className="h-10 w-auto object-contain" />
             </Link>
 
-            <nav className="hidden items-center justify-center gap-7 text-[10px] font-semibold uppercase tracking-[0.22em] md:flex">
+            <nav className="hidden items-center justify-center gap-6 text-[11px] font-semibold uppercase tracking-[0.18em] md:flex">
               {headerItems.map((item) => (
                 <Link key={item.id || item.label} to={resolvePublicUrl(item)} target={item.target === '_blank' ? '_blank' : undefined} className={`transition-colors hover:text-ember ${isActivePath(item) ? 'text-ember' : 'text-ink'}`}>
                   {item.label}
@@ -156,7 +156,7 @@ export default function PublicLayout() {
             </nav>
 
             <div className="hidden items-center gap-3 md:flex">
-              <Link to="/login" className="inline-flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-ink/60 transition hover:text-ember">
+              <Link to="/login" className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-ink/60 transition hover:text-ember">
                 <Shield className="h-3.5 w-3.5" /> Admin
               </Link>
               <Link to="/cart" className="relative bg-ink px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-paper transition-colors hover:bg-ember" aria-label="Open cart">
