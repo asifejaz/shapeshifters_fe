@@ -46,7 +46,7 @@ const defaults = {
 
 function PageHeader({ eyebrow, title, intro }) {
   return (
-    <header className="mx-auto max-w-screen-xl px-6 pt-20 pb-16">
+    <header className="mx-auto max-w-screen-xl px-6 pt-14 pb-12 md:pt-16 md:pb-14">
       <span className="mb-6 block font-mono text-[10px] uppercase tracking-[0.3em] text-ember">{eyebrow}</span>
       <h1 className="font-display text-6xl leading-[0.85] uppercase text-balance md:text-8xl">{title}</h1>
       {intro && <p className="mt-8 max-w-2xl text-base text-ink-muted">{intro}</p>}
@@ -80,7 +80,7 @@ export default function DesignedPage({ slug }) {
       {loading ? (
         <div className="grid place-items-center py-16"><div className="h-8 w-8 animate-spin rounded-full border-b-2 border-ember" /></div>
       ) : showCmsContent ? (
-        <section className="mx-auto max-w-4xl px-6 pb-20"><div className="ss-prose" dangerouslySetInnerHTML={{ __html: page.content }} /></section>
+        <section className="mx-auto max-w-4xl px-6 pb-14 md:pb-16"><div className="ss-prose" dangerouslySetInnerHTML={{ __html: page.content }} /></section>
       ) : null}
 
       {slug === 'programs' && <ProgramsFallback />}
@@ -93,7 +93,7 @@ export default function DesignedPage({ slug }) {
 
 function ProgramsFallback() {
   return (
-    <section className="mx-auto max-w-screen-xl px-6 pb-24">
+    <section className="mx-auto max-w-screen-xl px-6 pb-16 md:pb-20">
       <div className="grid grid-cols-1 divide-y divide-ink/10 border-y border-ink/10 md:grid-cols-2 md:divide-y-0">
         {programs.map(([no, category, title, copy], i) => (
           <article key={no} className={`group relative flex flex-col gap-6 p-8 transition-colors hover:bg-paper-dim md:p-10 ${i % 2 === 0 ? 'md:border-r md:border-ink/10' : ''} ${i >= 2 ? 'md:border-t md:border-ink/10' : ''}`}>
@@ -113,7 +113,7 @@ function ProgramsFallback() {
 
 function TrainersFallback() {
   return (
-    <section className="mx-auto max-w-screen-xl px-6 pb-24">
+    <section className="mx-auto max-w-screen-xl px-6 pb-16 md:pb-20">
       <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
         <article className="group relative flex flex-col overflow-hidden bg-paper-dim ring-1 ring-ink/10 transition-colors hover:ring-ember">
           <div className="relative aspect-[4/5] bg-ink"><div className="absolute inset-0 flex items-center justify-center"><span className="font-display text-[9rem] leading-none text-paper/20">SN</span></div><div className="absolute top-4 left-4 font-mono text-[10px] uppercase tracking-[0.3em] text-paper/70">Head Trainer</div><div className="absolute right-4 bottom-4 h-2 w-2 bg-ember" /></div>
@@ -130,7 +130,7 @@ function TrainersFallback() {
 
 function PricingFallback({ branches }) {
   return (
-    <section className="mx-auto max-w-screen-xl px-6 pb-20">
+    <section className="mx-auto max-w-screen-xl px-6 pb-16">
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
         {plans.map(([no, name, tag, copy, featured]) => (
           <article key={no} className={`flex flex-col justify-between border p-8 transition-colors ${featured ? 'border-ember bg-ink text-paper' : 'border-ink/15 bg-paper hover:border-ember'}`}>
@@ -146,7 +146,7 @@ function PricingFallback({ branches }) {
 
 function ContactFallback({ branches }) {
   return (
-    <section className="mx-auto max-w-screen-xl px-6 pb-24">
+    <section className="mx-auto max-w-screen-xl px-6 pb-16 md:pb-20">
       <div className="mb-10 flex flex-col gap-4 border-b border-ink/10 pb-7 sm:flex-row sm:items-end sm:justify-between">
         <div><span className="font-mono text-[10px] uppercase tracking-[0.3em] text-ember">Working hours</span><h3 className="mt-3 font-display text-3xl uppercase leading-none">06:00 – 22:00</h3></div>
         <p className="max-w-md text-sm text-ink-muted">Select a branch below. A short form will prepare your question before opening WhatsApp.</p>

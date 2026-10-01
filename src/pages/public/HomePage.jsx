@@ -146,7 +146,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-screen-xl px-6 py-20">
+      <section className="mx-auto max-w-screen-xl px-6 py-14 md:py-16">
         <div className="mb-10 flex flex-wrap items-end justify-between gap-4 border-b border-ink py-4">
           <div><span className="font-mono text-[10px] uppercase tracking-[0.3em] text-ember">Three locations · One standard</span><h2 className="mt-3 font-section text-5xl uppercase md:text-6xl">Choose Your Branch</h2></div>
           <p className="max-w-md text-sm text-ink-muted">Tell the branch what service you need, then continue the conversation directly on WhatsApp.</p>
@@ -155,7 +155,7 @@ export default function HomePage() {
       </section>
 
       {shopEnabled && (
-        <section className="mx-auto max-w-screen-xl px-6 py-20">
+        <section className="mx-auto max-w-screen-xl px-6 py-14 md:py-16">
           <div className="mb-10 flex flex-wrap items-end justify-between gap-4 border-b border-ink py-4">
             <div>
               <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-ember">Shop · Featured</span>
@@ -194,7 +194,7 @@ export default function HomePage() {
         </div>
       </div>
 
-      <section className="mx-auto max-w-screen-xl px-6 py-24">
+      <section className="mx-auto max-w-screen-xl px-6 py-14 md:py-18">
         <div className="grid grid-cols-1 gap-8 border border-ink/10 bg-paper-dim p-8 md:grid-cols-[1.15fr_0.85fr] md:items-end md:p-12">
           <div><span className="font-mono text-[10px] uppercase tracking-[0.3em] text-ember">Free fitness tools</span><h2 className="mt-4 font-section text-5xl uppercase leading-[0.9] md:text-7xl">Calculate.<br />Plan. Train.</h2><p className="mt-6 max-w-xl text-sm leading-relaxed text-ink-muted">BMI, calories, macros, protein, hydration, body-fat estimates, strength percentages, barbell plates, running pace, and goal timelines—all in one place.</p></div>
           <div><div className="grid grid-cols-2 gap-2">{calculatorLinks.map(([label, tool]) => <Link key={tool} to={`/calculators?tool=${tool}`} className="border border-ink/15 bg-paper px-4 py-3 font-mono text-[10px] font-semibold uppercase tracking-[0.14em] transition hover:border-ember hover:text-ember">{label} →</Link>)}</div><Link to="/calculators" className="mt-3 inline-flex w-full items-center justify-center gap-3 bg-ember px-7 py-5 font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-white transition-colors hover:bg-ink"><Calculator className="h-5 w-5" /> View all calculators <ArrowRight className="h-4 w-4" /></Link></div>
@@ -202,13 +202,13 @@ export default function HomePage() {
       </section>
 
       <section className="bg-ink text-paper">
-        <div className="mx-auto max-w-screen-xl px-6 py-24">
+        <div className="mx-auto max-w-screen-xl px-6 py-14 md:py-18">
           <div className="mb-10 flex flex-wrap items-end justify-between gap-5 border-b border-paper/15 pb-5"><div><span className="font-mono text-[10px] uppercase tracking-[0.3em] text-ember">Exercise + Pakistani food</span><h2 className="mt-3 font-section text-5xl uppercase md:text-6xl">Weekly Training Guides</h2></div><Link to="/guides" className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] hover:text-ember">View all plans →</Link></div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">{trainingGuides.map((guide) => <Link key={guide.slug} to={`/guides/${guide.slug}`} className="group border border-paper/10 bg-paper/5 transition hover:border-ember"><div className="aspect-[3/2] overflow-hidden"><img src={guide.image} alt="" loading="lazy" className="h-full w-full object-cover opacity-90 transition duration-700 group-hover:scale-105 group-hover:opacity-100" /></div><div className="p-5"><span className="font-mono text-[10px] uppercase tracking-[0.16em] text-ember">{guide.audience}</span><h3 className="mt-2 font-section text-2xl uppercase leading-none">{guide.shortTitle}</h3><span className="mt-5 inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.16em] text-paper/70 group-hover:text-ember">Open guide <ArrowRight className="h-3.5 w-3.5" /></span></div></Link>)}</div>
         </div>
       </section>
 
-      <section id="pillars" className="mx-auto max-w-screen-xl px-6 py-24">
+      <section id="pillars" className="mx-auto max-w-screen-xl px-6 pt-14 pb-10 md:pt-18 md:pb-12">
         <div className="mb-12 flex flex-wrap items-baseline justify-between gap-4 border-b border-ink py-4">
           <h2 className="font-section text-5xl uppercase md:text-6xl">{settings.pillars_heading || 'Three Pillars'}</h2>
           <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-ink/50">Core Methodology · 01 / 03</span>
@@ -227,17 +227,17 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-screen-xl px-6 py-16">
+      <div className="mx-auto max-w-screen-xl px-6">
         <InstagramFeed title="Latest Posts & Reels" limit={6} />
-      </section>
+      </div>
 
       {homepage?.content && (
-        <section className="mx-auto max-w-4xl px-6 py-12">
+        <section className="mx-auto max-w-4xl px-6 py-8 md:py-10">
           <div className="ss-prose" dangerouslySetInnerHTML={{ __html: homepage.content }} />
         </section>
       )}
 
-      <section className="border-t border-ink/10 bg-paper px-6 py-32 text-center">
+      <section className="border-t border-ink/10 bg-paper px-6 py-20 text-center md:py-24">
         <div className="mx-auto max-w-3xl">
           <span className="mb-8 block font-mono text-[10px] uppercase tracking-[0.3em] text-ink/50">Enrollment · New Cycle</span>
           <h2 className="font-display text-6xl leading-[0.85] uppercase text-balance md:text-8xl">{settings.cta_heading || 'Claim Your Spot'}</h2>

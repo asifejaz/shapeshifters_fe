@@ -37,14 +37,14 @@ export default function PublicPage() {
 
   return (
     <div>
-      <header className="mx-auto max-w-screen-xl px-6 pt-20 pb-16">
+      <header className="mx-auto max-w-screen-xl px-6 pt-14 pb-12 md:pt-16 md:pb-14">
         <span className="mb-6 block font-mono text-[10px] uppercase tracking-[0.3em] text-ember">Page</span>
         <h1 className="font-display text-6xl leading-[0.85] uppercase text-balance md:text-8xl">{page.title}</h1>
         {page.excerpt && <p className="mt-8 max-w-2xl text-base text-ink-muted">{page.excerpt}</p>}
         <div className="mt-10 h-px w-full bg-ink/10" />
       </header>
 
-      <section className="mx-auto max-w-4xl px-6 pb-20">
+      <section className="mx-auto max-w-4xl px-6 pb-14 md:pb-16">
         {page.content ? <div className="ss-prose" dangerouslySetInnerHTML={{ __html: page.content }} /> : <p className="text-ink-muted">This page has no content yet.</p>}
       </section>
 

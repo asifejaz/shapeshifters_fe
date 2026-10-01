@@ -25,12 +25,12 @@ export default function CalculatorsPage() {
 
   return (
     <div>
-      <header className="mx-auto max-w-screen-xl px-6 pt-20 pb-14">
+      <header className="mx-auto max-w-screen-xl px-6 pt-14 pb-10 md:pt-16 md:pb-12">
         <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-ember">Tools · Fitness calculators</span>
         <h1 className="mt-6 font-display text-6xl leading-[0.85] uppercase md:text-8xl">Know your<br />numbers.</h1>
         <p className="mt-8 max-w-2xl text-base leading-relaxed text-ink-muted">Practical estimates for training, nutrition, strength, and goal planning. Choose a calculator to get started.</p>
       </header>
-      <section className="mx-auto max-w-screen-xl px-6 pb-24">
+      <section className="mx-auto max-w-screen-xl px-6 pb-16 md:pb-20">
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {calculators.map((item, index) => <CalculatorCard key={item.id} item={item} index={index} onOpen={() => setSearchParams({ tool: item.id })} />)}
         </div>
