@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../../api';
-import ContactForm from '../../components/ContactForm';
 import { useSiteData } from './PublicLayout';
 import { whatsappUrl } from '../../utils/whatsapp';
+import BranchContactCards from '../../components/BranchContactCards';
 
 const programs = [
   ['01', 'Strength Training', 'Power & Muscle', 'Focused resistance training designed to build foundational strength and muscle mass through periodized programming.'],
@@ -40,7 +40,7 @@ const defaults = {
   contact: {
     eyebrow: 'Page · Contact',
     title: <>Let’s start<br />the conversation.</>,
-    intro: 'Have questions about services, branches, or memberships? Send us a message and we will get back to you.',
+    intro: 'Choose your nearest branch, tell us what service you need, and chat directly with the team on WhatsApp.',
   },
 };
 
@@ -61,7 +61,7 @@ export default function DesignedPage({ slug }) {
   const [loading, setLoading] = useState(true);
   const meta = defaults[slug] || defaults.programs;
   const hasCmsContent = Boolean(page?.content?.trim());
-  const showCmsContent = hasCmsContent && !['programs', 'trainers'].includes(slug);
+  const showCmsContent = hasCmsContent && !['programs', 'trainers', 'contact'].includes(slug);
 
   useEffect(() => {
     setLoading(true);
@@ -75,7 +75,7 @@ export default function DesignedPage({ slug }) {
 
   return (
     <div>
-      <PageHeader eyebrow={meta.eyebrow} title={page?.title ? page.title : meta.title} intro={page?.excerpt || meta.intro} />
+      <PageHeader eyebrow={meta.eyebrow} title={page?.title ? page.title : meta.title} intro={slug === 'contact' ? meta.intro : (page?.excerpt || meta.intro)} />
 
       {loading ? (
         <div className="grid place-items-center py-16"><div className="h-8 w-8 animate-spin rounded-full border-b-2 border-ember" /></div>
@@ -147,21 +147,11 @@ function PricingFallback({ branches }) {
 function ContactFallback({ branches }) {
   return (
     <section className="mx-auto max-w-screen-xl px-6 pb-24">
-      <div className="grid grid-cols-1 gap-10 md:grid-cols-[1fr_1.2fr] md:gap-16">
-        <div className="space-y-10">
-          <div>
-            <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-ember">Working Hours</span>
-            <h3 className="mt-3 font-display text-3xl uppercase leading-none">06:00 - 22:00</h3>
-            <p className="mt-2 text-sm text-ink-muted">Monday through Saturday. Closed Sunday.</p>
-          </div>
-
-          <div className="space-y-6">
-            <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-ember">Visit Us</span>
-            {branches.map((branch, index) => <div key={branch.id} className="border-t border-ink/10 pt-6"><div className="flex items-baseline justify-between font-mono text-[10px] uppercase tracking-[0.3em] text-ink/40"><span>No {String(index + 1).padStart(2, '0')}</span><span>Wah Cantt</span></div><h4 className="mt-2 font-display text-2xl uppercase">{branch.name}</h4><p className="mt-2 max-w-sm text-sm text-ink-muted">{branch.address}</p>{branch.phone && <a href={whatsappUrl(branch.phone)} target="_blank" rel="noreferrer" className="mt-3 inline-block font-mono text-xs font-semibold hover:text-ember">{branch.phone}</a>}</div>)}
-          </div>
-        </div>
-        <div className="bg-paper-dim p-8 md:p-10"><span className="font-mono text-[10px] uppercase tracking-[0.3em] text-ember">Send us a message</span><h3 className="mt-3 mb-8 font-display text-3xl uppercase leading-none">Get in touch</h3><ContactForm inline /></div>
+      <div className="mb-10 flex flex-col gap-4 border-b border-ink/10 pb-7 sm:flex-row sm:items-end sm:justify-between">
+        <div><span className="font-mono text-[10px] uppercase tracking-[0.3em] text-ember">Working hours</span><h3 className="mt-3 font-display text-3xl uppercase leading-none">06:00 – 22:00</h3></div>
+        <p className="max-w-md text-sm text-ink-muted">Select a branch below. A short form will prepare your question before opening WhatsApp.</p>
       </div>
+      <BranchContactCards branches={branches} />
     </section>
   );
 }

@@ -2,15 +2,26 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../../api';
 import { useSiteData } from './PublicLayout';
-import { ArrowRight, Package } from 'lucide-react';
+import { ArrowRight, Calculator, Package } from 'lucide-react';
 import heroImage from '../../assets/new-design/hero-athlete.jpg';
 import trainingImg from '../../assets/new-design/pillar-training.jpg';
 import fitnessImg from '../../assets/new-design/pillar-fitness.jpg';
 import nutritionImg from '../../assets/new-design/pillar-nutrition.jpg';
 import InstagramFeed from '../../components/InstagramFeed';
+import BranchContactCards from '../../components/BranchContactCards';
 
 const pillarImages = [trainingImg, fitnessImg, nutritionImg];
 const marqueeWords = ['Conditioning', 'Hypertrophy', 'Metabolic Burn', 'Olympic Lifting', 'Mobility', 'Recovery'];
+const fallbackHeroSlides = [
+  { image_url: heroImage, title: 'The Shift Starts Here', subtitle: 'A serious training environment for people ready to work.' },
+  { image_url: trainingImg, title: 'Train With Purpose', subtitle: 'Coach-led strength and conditioning built around real progress.' },
+  { image_url: fitnessImg, title: 'Built For The Hustle', subtitle: 'Modern equipment, focused spaces, and energy that keeps you moving.' },
+  { image_url: nutritionImg, title: 'Fuel Every Session', subtitle: 'Practical fitness and nutrition guidance without the noise.' },
+];
+const calculatorLinks = [
+  ['BMI', 'bmi'], ['Calories & TDEE', 'calories'], ['Macros', 'macros'], ['Protein', 'protein'],
+  ['Body Fat', 'body-fat'], ['One-Rep Max', 'one-rep-max'], ['Barbell Plates', 'plates'], ['Running Pace', 'pace'],
+];
 
 function firstWords(value, count) {
   const words = (value || '').split(' ').filter(Boolean);
@@ -29,7 +40,9 @@ export default function HomePage() {
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [posters, setPosters] = useState([]);
   const sliders = siteData?.sliders || [];
+  const branches = siteData?.branches || [];
   const settings = siteData?.settings || {};
+  const heroSlides = sliders.length > 0 ? sliders : fallbackHeroSlides;
   const shopEnabled = ['true', '1', true, 1].includes(settings.shop_enabled);
 
   useEffect(() => {
@@ -46,25 +59,18 @@ export default function HomePage() {
   }, [shopEnabled]);
 
   useEffect(() => {
-    if (sliders.length <= 1) return undefined;
-    const interval = setInterval(() => setCurrentSlide((prev) => (prev + 1) % sliders.length), 5500);
+    if (heroSlides.length <= 1) return undefined;
+    const interval = setInterval(() => setCurrentSlide((prev) => (prev + 1) % heroSlides.length), 5500);
     return () => clearInterval(interval);
-  }, [sliders.length]);
+  }, [heroSlides.length]);
 
-  const activeSlide = sliders[currentSlide];
+  const activeSlide = heroSlides[currentSlide % heroSlides.length];
   const heroTitle = activeSlide?.title || settings.hero_title || 'The Shift Starts Here';
   const heroIntro = activeSlide?.subtitle || settings.hero_subtitle || 'Discipline-first training, coach-led programs, and a room built for people who show up.';
   const heroCtaText = activeSlide?.button_text || settings.hero_cta_text || 'Get Started';
   const heroCtaUrl = activeSlide?.button_url || settings.hero_cta_url || '/contact';
   const secondaryText = settings.hero_secondary_text || 'View Programs';
   const secondaryUrl = settings.hero_secondary_url || '/programs';
-
-  const stats = useMemo(() => [1, 2]
-    .map((n, i) => ({
-      label: i === 0 ? 'Members' : (settings[`stat_${n}_label`] || 'Client Retention Rate'),
-      value: i === 0 ? '2000+' : (settings[`stat_${n}_value`] || '98%'),
-      no: `0${n}`,
-    })), [settings]);
 
   const pillars = useMemo(() => [1, 2, 3].map((n, i) => ({
     index: `0${n}`,
@@ -99,12 +105,12 @@ export default function HomePage() {
   return (
     <>
       <section className="mx-auto max-w-screen-xl px-6 pt-8 pb-4">
-        <div className="grid grid-cols-1 gap-4 md:h-[640px] md:grid-cols-12">
-          <div className="animate-reveal group relative overflow-hidden bg-ink md:col-span-8">
+        <div className="md:h-[680px]">
+          <div className="animate-reveal group relative h-full overflow-hidden bg-ink">
             <img src={activeSlide?.image_url || heroImage} alt={heroTitle} className="h-72 w-full object-cover opacity-90 grayscale transition-transform duration-[1200ms] group-hover:scale-105 md:h-full" />
             <div className="absolute inset-0 bg-gradient-to-t from-ink/80 via-ink/10 to-transparent" />
             <div className="absolute top-6 left-6 flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.22em] text-paper/70">
-              <span className="h-px w-8 bg-paper/50" /> {settings.hero_badge || 'New Cycle'}
+              <span className="h-px w-8 bg-paper/50" /> {settings.hero_badge || 'New Cycle · 2026'}
             </div>
             <div className="absolute right-6 bottom-8 left-6">
               <h1 className="font-display text-6xl leading-[0.85] text-paper uppercase text-balance sm:text-7xl md:text-[8rem]">
@@ -112,18 +118,6 @@ export default function HomePage() {
               </h1>
               <p className="mt-6 max-w-md text-sm leading-relaxed text-paper/75">{heroIntro}</p>
             </div>
-          </div>
-
-          <div className="grid gap-4 md:col-span-4 md:grid-rows-2">
-            {stats.map((stat, index) => (
-              <div key={stat.no} className={`${index === 1 ? 'bg-ink text-paper' : 'border border-ink/5 bg-paper-dim text-ink'} animate-reveal flex flex-col justify-between p-8`} style={{ animationDelay: `${(index + 1) * 100}ms` }}>
-                <span className={`font-mono text-[10px] uppercase tracking-[0.22em] ${index === 1 ? 'text-paper/40' : 'text-ink/40'}`}>({stat.no}) {index === 0 ? 'Community' : 'Standards'}</span>
-                <div>
-                  <div className="font-display text-6xl leading-none">{stat.value}</div>
-                  <p className={`mt-2 text-[11px] uppercase tracking-[0.22em] ${index === 1 ? 'text-paper/70' : 'text-ink-muted'}`}>{stat.label}</p>
-                </div>
-              </div>
-            ))}
           </div>
         </div>
 
@@ -134,12 +128,20 @@ export default function HomePage() {
           <Link to={secondaryUrl} className="inline-flex items-center gap-2 border border-ink/20 px-6 py-3 font-mono text-[11px] font-semibold uppercase tracking-[0.22em] transition-colors hover:bg-paper-dim">
             {secondaryText}
           </Link>
-          {sliders.length > 1 && (
+          {heroSlides.length > 1 && (
             <div className="ml-auto flex items-center gap-2">
-              {sliders.map((_, i) => <button key={i} onClick={() => setCurrentSlide(i)} className={`h-2 w-8 transition-colors ${i === currentSlide ? 'bg-ember' : 'bg-ink/15'}`} aria-label={`Go to slide ${i + 1}`} />)}
+              {heroSlides.map((_, i) => <button key={i} onClick={() => setCurrentSlide(i)} className={`h-2 w-8 transition-colors ${i === currentSlide ? 'bg-ember' : 'bg-ink/15'}`} aria-label={`Go to slide ${i + 1}`} />)}
             </div>
           )}
         </div>
+      </section>
+
+      <section className="mx-auto max-w-screen-xl px-6 py-20">
+        <div className="mb-10 flex flex-wrap items-end justify-between gap-4 border-b border-ink py-4">
+          <div><span className="font-mono text-[10px] uppercase tracking-[0.3em] text-ember">Three locations · One standard</span><h2 className="mt-3 font-display text-5xl uppercase md:text-6xl">Choose Your Branch</h2></div>
+          <p className="max-w-md text-sm text-ink-muted">Tell the branch what service you need, then continue the conversation directly on WhatsApp.</p>
+        </div>
+        <BranchContactCards branches={branches} />
       </section>
 
       {shopEnabled && (
@@ -181,6 +183,13 @@ export default function HomePage() {
           ))}
         </div>
       </div>
+
+      <section className="mx-auto max-w-screen-xl px-6 py-24">
+        <div className="grid grid-cols-1 gap-8 border border-ink/10 bg-paper-dim p-8 md:grid-cols-[1.15fr_0.85fr] md:items-end md:p-12">
+          <div><span className="font-mono text-[10px] uppercase tracking-[0.3em] text-ember">Free fitness tools</span><h2 className="mt-4 font-display text-5xl uppercase leading-[0.9] md:text-7xl">Calculate.<br />Plan. Train.</h2><p className="mt-6 max-w-xl text-sm leading-relaxed text-ink-muted">BMI, calories, macros, protein, hydration, body-fat estimates, strength percentages, barbell plates, running pace, and goal timelines—all in one place.</p></div>
+          <div><div className="grid grid-cols-2 gap-2">{calculatorLinks.map(([label, tool]) => <Link key={tool} to={`/calculators?tool=${tool}`} className="border border-ink/15 bg-paper px-4 py-3 font-mono text-[9px] font-semibold uppercase tracking-[0.16em] transition hover:border-ember hover:text-ember">{label} →</Link>)}</div><Link to="/calculators" className="mt-3 inline-flex w-full items-center justify-center gap-3 bg-ink px-7 py-5 font-mono text-[11px] font-semibold uppercase tracking-[0.22em] text-paper transition-colors hover:bg-ember"><Calculator className="h-5 w-5" /> View all calculators <ArrowRight className="h-4 w-4" /></Link></div>
+        </div>
+      </section>
 
       <section id="pillars" className="mx-auto max-w-screen-xl px-6 py-24">
         <div className="mb-12 flex flex-wrap items-baseline justify-between gap-4 border-b border-ink py-4">

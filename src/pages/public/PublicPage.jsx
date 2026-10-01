@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import api from '../../api';
 import { ArrowLeft } from 'lucide-react';
-import ContactForm from '../../components/ContactForm';
 
 export default function PublicPage() {
   const { slug } = useParams();
@@ -49,12 +48,6 @@ export default function PublicPage() {
         {page.content ? <div className="ss-prose" dangerouslySetInnerHTML={{ __html: page.content }} /> : <p className="text-ink-muted">This page has no content yet.</p>}
       </section>
 
-      {slug === 'contact' && (
-        <section className="mx-auto max-w-4xl border-t border-ink/10 px-6 py-16">
-          <div className="mb-10 text-center"><span className="font-mono text-[10px] uppercase tracking-[0.3em] text-ember">Get in Touch</span><h2 className="mt-3 font-display text-4xl uppercase">Send us a message</h2></div>
-          <ContactForm />
-        </section>
-      )}
     </div>
   );
 }

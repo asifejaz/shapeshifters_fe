@@ -13,6 +13,7 @@ const fallbackLinks = [
   { label: 'Trainers', url: '/trainers' },
   { label: 'Posters', url: '/posters' },
   { label: 'Pricing', url: '/pricing' },
+  { label: 'Calculators', url: '/calculators' },
   { label: 'Contact', url: '/contact' },
 ];
 
@@ -32,7 +33,9 @@ const ensurePostersItem = (items) => {
     return label === 'posters' || slug === 'posters' || url === '/posters' || url === '/page/posters';
   });
 
-  return hasPosters ? visibleItems : [...visibleItems, { label: 'Posters', url: '/posters' }];
+  const withPosters = hasPosters ? visibleItems : [...visibleItems, { label: 'Posters', url: '/posters' }];
+  const hasCalculators = withPosters.some((item) => (item.label || '').toLowerCase() === 'calculators' || (item.url || '').toLowerCase() === '/calculators');
+  return hasCalculators ? withPosters : [...withPosters, { label: 'Calculators', url: '/calculators' }];
 };
 
 function FacebookIcon({ className }) {
@@ -49,7 +52,7 @@ function TikTokIcon({ className }) {
 
 export function resolvePublicUrl(item) {
   if (item.type === 'page' && item.page) {
-    const direct = ['programs', 'trainers', 'pricing', 'contact', 'posters'].includes(item.page.slug);
+    const direct = ['programs', 'trainers', 'pricing', 'contact', 'posters', 'calculators'].includes(item.page.slug);
     return direct ? `/${item.page.slug}` : `/page/${item.page.slug}`;
   }
   return item.url || '#';
