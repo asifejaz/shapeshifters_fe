@@ -9,6 +9,7 @@ import fitnessImg from '../../assets/new-design/pillar-fitness.jpg';
 import nutritionImg from '../../assets/new-design/pillar-nutrition.jpg';
 import InstagramFeed from '../../components/InstagramFeed';
 import BranchContactCards from '../../components/BranchContactCards';
+import { trainingGuides } from './trainingGuideData';
 
 const pillarImages = [trainingImg, fitnessImg, nutritionImg];
 const marqueeWords = ['Conditioning', 'Hypertrophy', 'Metabolic Burn', 'Olympic Lifting', 'Mobility', 'Recovery'];
@@ -188,6 +189,13 @@ export default function HomePage() {
         <div className="grid grid-cols-1 gap-8 border border-ink/10 bg-paper-dim p-8 md:grid-cols-[1.15fr_0.85fr] md:items-end md:p-12">
           <div><span className="font-mono text-[10px] uppercase tracking-[0.3em] text-ember">Free fitness tools</span><h2 className="mt-4 font-display text-5xl uppercase leading-[0.9] md:text-7xl">Calculate.<br />Plan. Train.</h2><p className="mt-6 max-w-xl text-sm leading-relaxed text-ink-muted">BMI, calories, macros, protein, hydration, body-fat estimates, strength percentages, barbell plates, running pace, and goal timelines—all in one place.</p></div>
           <div><div className="grid grid-cols-2 gap-2">{calculatorLinks.map(([label, tool]) => <Link key={tool} to={`/calculators?tool=${tool}`} className="border border-ink/15 bg-paper px-4 py-3 font-mono text-[9px] font-semibold uppercase tracking-[0.16em] transition hover:border-ember hover:text-ember">{label} →</Link>)}</div><Link to="/calculators" className="mt-3 inline-flex w-full items-center justify-center gap-3 bg-ink px-7 py-5 font-mono text-[11px] font-semibold uppercase tracking-[0.22em] text-paper transition-colors hover:bg-ember"><Calculator className="h-5 w-5" /> View all calculators <ArrowRight className="h-4 w-4" /></Link></div>
+        </div>
+      </section>
+
+      <section className="bg-ink text-paper">
+        <div className="mx-auto max-w-screen-xl px-6 py-24">
+          <div className="mb-10 flex flex-wrap items-end justify-between gap-5 border-b border-paper/15 pb-5"><div><span className="font-mono text-[10px] uppercase tracking-[0.3em] text-ember">Exercise + Pakistani food</span><h2 className="mt-3 font-display text-5xl uppercase md:text-6xl">Weekly Training Guides</h2></div><Link to="/guides" className="font-mono text-[10px] font-semibold uppercase tracking-[0.22em] hover:text-ember">View all plans →</Link></div>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">{trainingGuides.map((guide) => <Link key={guide.slug} to={`/guides/${guide.slug}`} className="group border border-paper/10 bg-paper/5 transition hover:border-ember"><div className="aspect-[3/2] overflow-hidden"><img src={guide.image} alt="" loading="lazy" className="h-full w-full object-cover opacity-85 transition duration-700 group-hover:scale-105 group-hover:opacity-100" /></div><div className="p-5"><span className="font-mono text-[9px] uppercase tracking-[0.2em] text-ember">{guide.audience}</span><h3 className="mt-2 font-display text-2xl uppercase leading-none">{guide.shortTitle}</h3><span className="mt-5 inline-flex items-center gap-2 font-mono text-[9px] uppercase tracking-[0.2em] text-paper/60 group-hover:text-ember">Open guide <ArrowRight className="h-3.5 w-3.5" /></span></div></Link>)}</div>
         </div>
       </section>
 

@@ -43,6 +43,7 @@ const CheckoutPage = lazy(() => import('./pages/public/CheckoutPage'));
 const ProductDetailsPage = lazy(() => import('./pages/public/ProductDetailsPage'));
 const CartPage = lazy(() => import('./pages/public/CartPage'));
 const CalculatorsPage = lazy(() => import('./pages/public/CalculatorsPage'));
+const TrainingGuidesPage = lazy(() => import('./pages/public/TrainingGuidesPage'));
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
@@ -95,6 +96,8 @@ function App() {
               <Route path="/pricing" element={<DesignedPage slug="pricing" />} />
               <Route path="/contact" element={<DesignedPage slug="contact" />} />
               <Route path="/calculators" element={<CalculatorsPage />} />
+              <Route path="/guides" element={<TrainingGuidesPage />} />
+              <Route path="/guides/:slug" element={<TrainingGuidesPage />} />
               <Route path="/posters" element={<PostersPage />} />
               <Route path="/page/gallery" element={<Navigate to="/" />} />
               <Route path="/page/contact" element={<Navigate to="/contact" replace />} />
