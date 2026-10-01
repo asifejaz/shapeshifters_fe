@@ -10,12 +10,10 @@ export const useSiteData = () => useContext(SiteContext);
 
 const fallbackLinks = [
   { label: 'Programs', url: '/programs' },
-  { label: 'Trainers', url: '/trainers' },
-  { label: 'Posters', url: '/posters' },
   { label: 'Pricing', url: '/pricing' },
   { label: 'Training Guides', url: '/guides' },
   { label: 'Calculators', url: '/calculators' },
-  { label: 'Contact', url: '/contact' },
+  { label: 'Contact Us', url: '/contact' },
 ];
 
 const isGalleryItem = (item) => {
@@ -25,20 +23,24 @@ const isGalleryItem = (item) => {
   return label === 'gallery' || slug === 'gallery' || url === '/gallery' || url === '/page/gallery';
 };
 
-const ensurePostersItem = (items) => {
-  const visibleItems = items.filter((item) => !isGalleryItem(item));
-  const hasPosters = visibleItems.some((item) => {
+const isTemporarilyHiddenItem = (item) => {
+  const values = [item.label, item.url, item.page?.slug].filter(Boolean).map((value) => value.toLowerCase());
+  return values.some((value) => ['trainers', 'shop', 'posters', '/trainers', '/shop', '/posters', '/page/trainers', '/page/shop', '/page/posters'].includes(value));
+};
+
+const normalizeMenuItems = (items) => {
+  const visibleItems = items.filter((item) => !isGalleryItem(item) && !isTemporarilyHiddenItem(item));
+  const withoutContact = visibleItems.filter((item) => {
     const label = (item.label || '').toLowerCase();
     const url = (item.url || '').toLowerCase();
     const slug = (item.page?.slug || '').toLowerCase();
-    return label === 'posters' || slug === 'posters' || url === '/posters' || url === '/page/posters';
+    return label !== 'contact' && label !== 'contact us' && slug !== 'contact' && url !== '/contact' && url !== '/page/contact';
   });
-
-  const withPosters = hasPosters ? visibleItems : [...visibleItems, { label: 'Posters', url: '/posters' }];
-  const hasCalculators = withPosters.some((item) => (item.label || '').toLowerCase() === 'calculators' || (item.url || '').toLowerCase() === '/calculators');
-  const withCalculators = hasCalculators ? withPosters : [...withPosters, { label: 'Calculators', url: '/calculators' }];
+  const hasCalculators = withoutContact.some((item) => (item.label || '').toLowerCase() === 'calculators' || (item.url || '').toLowerCase() === '/calculators');
+  const withCalculators = hasCalculators ? withoutContact : [...withoutContact, { label: 'Calculators', url: '/calculators' }];
   const hasGuides = withCalculators.some((item) => (item.label || '').toLowerCase() === 'training guides' || (item.url || '').toLowerCase() === '/guides');
-  return hasGuides ? withCalculators : [...withCalculators, { label: 'Training Guides', url: '/guides' }];
+  const withGuides = hasGuides ? withCalculators : [...withCalculators, { label: 'Training Guides', url: '/guides' }];
+  return [...withGuides, { label: 'Contact Us', url: '/contact' }];
 };
 
 function FacebookIcon({ className }) {
@@ -93,8 +95,8 @@ export default function PublicLayout() {
   }, [location]);
 
   const settings = siteData?.settings || {};
-  const headerItems = ensurePostersItem(siteData?.menus?.header?.items?.length ? siteData.menus.header.items : fallbackLinks);
-  const footerItems = ensurePostersItem(siteData?.menus?.footer?.items?.length ? siteData.menus.footer.items : headerItems);
+  const headerItems = normalizeMenuItems(siteData?.menus?.header?.items?.length ? siteData.menus.header.items : fallbackLinks);
+  const footerItems = normalizeMenuItems(siteData?.menus?.footer?.items?.length ? siteData.menus.footer.items : headerItems);
   const analyticsId = settings.google_analytics_id?.trim();
 
   const isActivePath = (item) => {

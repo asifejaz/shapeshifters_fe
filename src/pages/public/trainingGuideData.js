@@ -2,6 +2,10 @@ import menMuscleImage from '../../assets/training-guides/men-muscle-building.web
 import menWeightLossImage from '../../assets/training-guides/men-weight-loss.webp';
 import womenWeightLossImage from '../../assets/training-guides/women-weight-loss.webp';
 import womenFitnessImage from '../../assets/training-guides/women-fitness.webp';
+import menMuscleExerciseBoard from '../../assets/training-guides/men-muscle-exercise-board.webp';
+import menWeightLossExerciseBoard from '../../assets/training-guides/men-weight-loss-exercise-board.webp';
+import womenWeightLossExerciseBoard from '../../assets/training-guides/women-weight-loss-exercise-board.webp';
+import womenFitnessExerciseBoard from '../../assets/training-guides/women-fitness-exercise-board.webp';
 
 const balancedMeals = [
   ['Monday', '2 eggs + whole-wheat roti + seasonal fruit', 'Chicken or chana salad + raita', 'Dahi or roasted chana', 'Daal + mixed sabzi + 1–2 rotis'],
@@ -34,6 +38,9 @@ const weightLossMeals = balancedMeals.map(([day, breakfast, lunch, snack, dinner
 export const trainingGuides = [
   {
     slug: 'men-muscle-shape', audience: 'Men · 18+', title: 'Muscle & Shape Building', shortTitle: 'Men’s Muscle Building', image: menMuscleImage,
+    exerciseBoard: menMuscleExerciseBoard,
+    exerciseLabels: ['Dumbbell press', 'Lat pulldown', 'Goblet squat', 'Romanian deadlift'],
+    pdfUrl: '/downloads/training-guides/men-muscle-shape.pdf',
     intro: 'A four-day hypertrophy-focused strength structure with two lighter recovery days. Add weight or repetitions gradually while keeping technique controlled.',
     goal: 'Build muscle, improve proportions, and develop foundational strength.',
     nutrition: 'Start with regular balanced meals and a protein source at each meal. The sample portions suit an active adult, but energy needs vary—use the calorie and protein calculators to personalise them.',
@@ -50,6 +57,9 @@ export const trainingGuides = [
   },
   {
     slug: 'men-weight-loss', audience: 'Men · 18+', title: 'Sustainable Weight Loss', shortTitle: 'Men’s Weight Loss', image: menWeightLossImage,
+    exerciseBoard: menWeightLossExerciseBoard,
+    exerciseLabels: ['Incline walk', 'Goblet squat', 'Seated row', 'Stationary cycle'],
+    pdfUrl: '/downloads/training-guides/men-weight-loss.pdf',
     intro: 'A joint-friendly combination of full-body strength and progressive cardio designed to preserve muscle while increasing weekly activity.',
     goal: 'Reduce body weight gradually while maintaining strength, energy, and consistency.',
     nutrition: 'Build meals around vegetables, pulses or lean protein, and controlled portions of roti or rice. Avoid liquid calories most days and aim for gradual—not crash—weight loss.',
@@ -66,6 +76,9 @@ export const trainingGuides = [
   },
   {
     slug: 'women-weight-loss', audience: 'Women · 18+', title: 'Strength-Led Weight Loss', shortTitle: 'Women’s Weight Loss', image: womenWeightLossImage,
+    exerciseBoard: womenWeightLossExerciseBoard,
+    exerciseLabels: ['Goblet squat', 'Romanian deadlift', 'Reverse lunge', 'Seated row'],
+    pdfUrl: '/downloads/training-guides/women-weight-loss.pdf',
     intro: 'Full-body resistance training plus moderate cardio supports sustainable fat loss without relying on punishing daily workouts.',
     goal: 'Improve strength and fitness while pursuing gradual, sustainable weight loss.',
     nutrition: 'Use regular meals rich in vegetables, daal, chana, dahi, eggs, chicken, or fish. Portions—not removing all roti or rice—are the main adjustment.',
@@ -82,6 +95,9 @@ export const trainingGuides = [
   },
   {
     slug: 'women-fitness', audience: 'Women · 18+', title: 'Fitness, Strength & Energy', shortTitle: 'Women’s Fitness', image: womenFitnessImage,
+    exerciseBoard: womenFitnessExerciseBoard,
+    exerciseLabels: ['Squat to bench', 'Shoulder press', 'Step-up', 'Brisk treadmill walk'],
+    pdfUrl: '/downloads/training-guides/women-fitness.pdf',
     intro: 'A balanced week combining strength, aerobic fitness, mobility, and recovery for general health and everyday performance.',
     goal: 'Build full-body fitness, confidence, mobility, and lasting training habits.',
     nutrition: 'A flexible Pakistani plate works well: include a protein source, vegetables or fruit, roti/rice, and dahi or milk across the day.',

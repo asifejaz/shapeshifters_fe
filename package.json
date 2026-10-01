@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "generate:training-pdfs": "python3 scripts/generate_training_pdfs.py",
     "lint": "eslint .",
     "preview": "vite preview"
   },
