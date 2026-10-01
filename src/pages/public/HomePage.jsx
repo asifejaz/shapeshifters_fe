@@ -72,10 +72,9 @@ export default function HomePage() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [posters, setPosters] = useState([]);
-  const sliders = siteData?.sliders || [];
   const branches = siteData?.branches || [];
   const settings = siteData?.settings || {};
-  const heroSlides = [...campaignHeroSlides, ...sliders];
+  const heroSlides = campaignHeroSlides;
   const shopEnabled = ['true', '1', true, 1].includes(settings.shop_enabled);
 
   useEffect(() => {
