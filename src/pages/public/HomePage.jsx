@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../../api';
 import { useSiteData } from './PublicLayout';
-import { ArrowRight, Calculator, Package } from 'lucide-react';
+import { Activity, ArrowRight, Calculator, Dumbbell, HeartPulse, Music, Package, UserCheck, Users } from 'lucide-react';
 import heroImage from '../../assets/new-design/hero-athlete.jpg';
 import strengthHero from '../../assets/hero-slides/strength-starts-today.webp';
 import womenHero from '../../assets/hero-slides/womens-strength.webp';
@@ -55,6 +55,14 @@ const calculatorLinks = [
   ['BMI', 'bmi'], ['Calories & TDEE', 'calories'], ['Macros', 'macros'], ['Protein', 'protein'],
   ['Body Fat', 'body-fat'], ['One-Rep Max', 'one-rep-max'], ['Barbell Plates', 'plates'], ['Running Pace', 'pace'],
 ];
+const whyChooseFeatures = [
+  { icon: HeartPulse, title: 'Women’s Health & Fitness', body: 'A supportive women-focused environment for strength, healthy weight management, mobility, confidence, and lasting wellbeing.' },
+  { icon: Dumbbell, title: 'Men’s Strength & Conditioning', body: 'Progressive training for muscle building, fat loss, endurance, athletic performance, and everyday strength.' },
+  { icon: UserCheck, title: 'Personal Training', body: 'Individual coaching that turns your goal into a practical plan with better technique, progression, and accountability.' },
+  { icon: Activity, title: 'Cardio & Weight Management', body: 'Dedicated cardio and conditioning options to support stamina, energy, body-composition goals, and heart health.' },
+  { icon: Music, title: 'Aerobics, Mobility & Wellbeing', body: 'Energetic sessions that build coordination and fitness while helping you move, feel, and live better.' },
+  { icon: Users, title: 'Comfortable Training Spaces', body: 'Separate sections for men and women, modern equipment, secure lockers, and a respectful community atmosphere.' },
+];
 
 function firstWords(value, count) {
   const words = (value || '').split(' ').filter(Boolean);
@@ -68,17 +76,12 @@ function restWords(value, count) {
 
 export default function HomePage() {
   const siteData = useSiteData();
-  const [homepage, setHomepage] = useState(null);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const branches = siteData?.branches || [];
   const settings = useMemo(() => siteData?.settings || {}, [siteData?.settings]);
   const heroSlides = campaignHeroSlides;
   const shopEnabled = ['true', '1', true, 1].includes(settings.shop_enabled);
-
-  useEffect(() => {
-    api.get('/public/homepage').then((res) => setHomepage(res.data)).catch(() => null);
-  }, []);
 
   useEffect(() => {
     if (!shopEnabled) return undefined;
@@ -146,11 +149,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {homepage?.content && (
-        <section className="mx-auto max-w-4xl px-6 pt-10 pb-4 md:pt-14 md:pb-4">
-          <div className="ss-prose" dangerouslySetInnerHTML={{ __html: homepage.content }} />
-        </section>
-      )}
+      <WhyChooseSection />
 
       <section id="pillars" className="mx-auto max-w-screen-xl px-6 pt-4 pb-14 md:pt-4 md:pb-18">
         <div className="mb-12 flex flex-wrap items-baseline justify-between gap-4 border-b border-ink py-4">
@@ -250,5 +249,45 @@ export default function HomePage() {
         </div>
       </section>
     </>
+  );
+}
+
+function WhyChooseSection() {
+  return (
+    <section className="bg-ink text-paper" aria-labelledby="why-choose-heading">
+      <div className="mx-auto max-w-screen-xl px-6 py-14 md:py-18">
+        <div className="grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:gap-14">
+          <div className="flex flex-col justify-between">
+            <div>
+              <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-ember">One standard · Every session</span>
+              <h2 id="why-choose-heading" className="mt-5 max-w-2xl font-section text-5xl leading-[0.9] uppercase text-balance sm:text-6xl md:text-7xl">More than a gym. A place to become stronger.</h2>
+              <p className="mt-7 max-w-xl text-sm leading-relaxed text-paper/70 md:text-base">Shape Shifters is built for men and women who want to become stronger, healthier, and more confident—not chase shortcuts. From women-focused fitness and healthy weight management to muscle building, cardio, aerobics, and personal training, every service is designed to support progress that improves life beyond the gym.</p>
+            </div>
+            <div className="mt-9 flex flex-wrap gap-3">
+              <Link to="/programs" className="inline-flex items-center gap-3 bg-ember px-6 py-4 font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-white transition hover:bg-paper hover:text-ink">Explore programs <ArrowRight className="h-4 w-4" /></Link>
+              <Link to="/contact" className="inline-flex items-center gap-3 border border-paper/25 px-6 py-4 font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-paper transition hover:border-paper">Find your branch</Link>
+            </div>
+          </div>
+
+          <div className="grid gap-px border border-paper/15 bg-paper/15 sm:grid-cols-2">
+            {whyChooseFeatures.map(({ icon: Icon, title, body }, index) => (
+              <article key={title} className="group min-h-48 bg-ink p-6 transition-colors hover:bg-paper/[0.06] md:p-7">
+                <div className="flex items-start justify-between">
+                  <span className="grid h-10 w-10 place-items-center border border-ember/50 text-ember"><Icon className="h-5 w-5" /></span>
+                  <span className="font-mono text-[9px] tracking-[0.2em] text-paper/30">{String(index + 1).padStart(2, '0')}</span>
+                </div>
+                <h3 className="mt-7 font-section text-2xl uppercase leading-none">{title}</h3>
+                <p className="mt-3 text-sm leading-relaxed text-paper/60">{body}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-10 grid gap-5 border-t border-paper/15 pt-8 md:grid-cols-[0.8fr_1.2fr] md:items-center">
+          <div><span className="font-mono text-[10px] uppercase tracking-[0.25em] text-ember">Expert coaching</span><h3 className="mt-3 font-section text-3xl uppercase sm:text-4xl">You bring the goal. We help build the path.</h3></div>
+          <p className="max-w-2xl text-sm leading-relaxed text-paper/65 md:justify-self-end">Whatever your starting point, our trainers help you move with better technique, train with purpose, and build the consistency behind better strength, fitness, confidence, and wellbeing.</p>
+        </div>
+      </div>
+    </section>
   );
 }
