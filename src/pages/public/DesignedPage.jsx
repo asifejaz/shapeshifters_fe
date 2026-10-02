@@ -148,7 +148,7 @@ function ContactFallback({ branches }) {
   return (
     <section className="mx-auto max-w-screen-xl px-6 pb-16 md:pb-20">
       <div className="mb-10 flex flex-col gap-4 border-b border-ink/10 pb-7 sm:flex-row sm:items-end sm:justify-between">
-        <div><span className="font-mono text-[10px] uppercase tracking-[0.3em] text-ember">Working hours</span><h3 className="mt-3 font-display text-3xl uppercase leading-none">08:00 – 23:00</h3><p className="mt-2 font-mono text-[10px] uppercase tracking-[0.18em] text-ink/50">Monday–Saturday · Sunday closed</p></div>
+        <div><span className="font-mono text-[10px] uppercase tracking-[0.3em] text-ember">Working hours</span><h3 className="mt-3 font-display text-3xl uppercase leading-none">06:00 – 23:00</h3><p className="mt-2 font-mono text-[10px] uppercase tracking-[0.18em] text-ink/50">Monday–Saturday · Sunday closed</p></div>
         <p className="max-w-md text-sm text-ink-muted">Select a branch below. A short form will prepare your question before opening WhatsApp.</p>
       </div>
       <BranchContactCards branches={branches} />
