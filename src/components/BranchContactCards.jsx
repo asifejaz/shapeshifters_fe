@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Check, MapPin, MessageCircle, Phone, X } from 'lucide-react';
+import { Check, MapPin, MessageCircle, Navigation, Phone, X } from 'lucide-react';
 import { whatsappUrl } from '../utils/whatsapp';
+import { branchMapUrl } from '../utils/branchMaps';
 
 const services = [
   'Gym membership',
@@ -30,9 +31,14 @@ export default function BranchContactCards({ branches = [], compact = false }) {
               {branch.address && <p className="mt-5 flex gap-3 text-sm leading-relaxed text-ink-muted"><MapPin className="mt-0.5 h-4 w-4 shrink-0 text-ember" />{branch.address}</p>}
               {branch.phone && <p className="mt-3 flex items-center gap-3 text-sm font-semibold"><Phone className="h-4 w-4 text-ember" />{branch.phone}</p>}
             </div>
-            <button type="button" onClick={() => setSelectedBranch(branch)} className="mt-8 inline-flex items-center justify-center gap-3 bg-ink px-5 py-3 font-mono text-[10px] font-semibold uppercase tracking-[0.22em] text-paper transition-colors hover:bg-ember">
-              <MessageCircle className="h-4 w-4" /> Contact on WhatsApp
-            </button>
+            <div className="mt-8 grid gap-2">
+              <button type="button" onClick={() => setSelectedBranch(branch)} className="inline-flex items-center justify-center gap-3 bg-ink px-5 py-3 font-mono text-[10px] font-semibold uppercase tracking-[0.22em] text-paper transition-colors hover:bg-ember">
+                <MessageCircle className="h-4 w-4" /> Contact on WhatsApp
+              </button>
+              <a href={branchMapUrl(branch, index)} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center gap-2 border border-ink/15 px-5 py-2.5 font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-ink transition-colors hover:border-ember hover:text-ember">
+                <Navigation className="h-3.5 w-3.5" /> Get Directions
+              </a>
+            </div>
           </article>
         ))}
       </div>

@@ -1,9 +1,10 @@
 import { useState, useEffect, createContext, useContext } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import api from '../../api';
-import { Menu, X, Shield, MapPin, Phone, ShoppingBag } from 'lucide-react';
+import { Menu, X, Shield, MapPin, Navigation, Phone, ShoppingBag } from 'lucide-react';
 import logo from '../../assets/logo.webp';
 import { whatsappUrl } from '../../utils/whatsapp';
+import { branchMapUrl } from '../../utils/branchMaps';
 
 const SiteContext = createContext(null);
 export const useSiteData = () => useContext(SiteContext);
@@ -209,11 +210,12 @@ export default function PublicLayout() {
             <div className="md:col-span-2">
               <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-ink/40">Locations</span>
               <div className="mt-4 grid gap-5 sm:grid-cols-2">
-                {siteData?.branches?.length > 0 ? siteData.branches.map((branch) => (
+                {siteData?.branches?.length > 0 ? siteData.branches.map((branch, index) => (
                   <div key={branch.id} className="text-xs leading-relaxed text-ink-muted">
                     <p className="font-semibold uppercase text-ink">{branch.name}</p>
                     {branch.address && <p className="mt-2 flex gap-2"><MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-ember" />{branch.address}</p>}
                     {branch.phone && <a href={whatsappUrl(branch.phone)} target="_blank" rel="noreferrer" className="mt-1 flex gap-2 hover:text-ember"><Phone className="h-3.5 w-3.5 shrink-0 text-ember" />{branch.phone}</a>}
+                    <a href={branchMapUrl(branch, index)} target="_blank" rel="noreferrer" className="mt-2 inline-flex items-center gap-2 font-mono text-[9px] font-semibold uppercase tracking-[0.16em] text-ink/60 hover:text-ember"><Navigation className="h-3.5 w-3.5 text-ember" />Directions</a>
                   </div>
                 )) : (
                   <div className="text-xs leading-relaxed text-ink-muted">
