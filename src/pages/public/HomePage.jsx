@@ -147,12 +147,12 @@ export default function HomePage() {
       </section>
 
       {homepage?.content && (
-        <section className="mx-auto max-w-4xl px-6 py-10 md:py-14">
+        <section className="mx-auto max-w-4xl px-6 pt-10 pb-4 md:pt-14 md:pb-4">
           <div className="ss-prose" dangerouslySetInnerHTML={{ __html: homepage.content }} />
         </section>
       )}
 
-      <section id="pillars" className="mx-auto max-w-screen-xl px-6 pt-10 pb-14 md:pt-12 md:pb-18">
+      <section id="pillars" className="mx-auto max-w-screen-xl px-6 pt-4 pb-14 md:pt-4 md:pb-18">
         <div className="mb-12 flex flex-wrap items-baseline justify-between gap-4 border-b border-ink py-4">
           <h2 className="font-section text-5xl uppercase md:text-6xl">{settings.pillars_heading || 'Three Pillars'}</h2>
           <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-ink/50">Core Methodology · 01 / 03</span>
