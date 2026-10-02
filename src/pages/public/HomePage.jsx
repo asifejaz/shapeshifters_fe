@@ -8,14 +8,10 @@ import strengthHero from '../../assets/hero-slides/strength-starts-today.webp';
 import womenHero from '../../assets/hero-slides/womens-strength.webp';
 import coachingHero from '../../assets/hero-slides/coaching-progress.webp';
 import branchesHero from '../../assets/hero-slides/three-branches.webp';
-import trainingImg from '../../assets/new-design/pillar-training.jpg';
-import fitnessImg from '../../assets/new-design/pillar-fitness.jpg';
-import nutritionImg from '../../assets/new-design/pillar-nutrition.jpg';
 import InstagramFeed from '../../components/InstagramFeed';
 import BranchContactCards from '../../components/BranchContactCards';
 import { trainingGuides } from './trainingGuideData';
 
-const pillarImages = [trainingImg, fitnessImg, nutritionImg];
 const marqueeWords = ['Conditioning', 'Hypertrophy', 'Metabolic Burn', 'Olympic Lifting', 'Mobility', 'Recovery'];
 const campaignHeroSlides = [
   {
@@ -104,17 +100,6 @@ export default function HomePage() {
   const secondaryText = activeSlide?.secondary_text || settings.hero_secondary_text || 'View Programs';
   const secondaryUrl = activeSlide?.secondary_url || settings.hero_secondary_url || '/programs';
 
-  const pillars = useMemo(() => [1, 2, 3].map((n, i) => ({
-    index: `0${n}`,
-    title: settings[`pillar_${n}_title`] || ['Training', 'Fitness', 'Nutrition'][i],
-    body: settings[`pillar_${n}_body`] || [
-      'Technical precision meets raw intensity. Periodized strength and hypertrophy blocks written by coaches.',
-      'Conditioning, mobility, and recovery protocols built around your schedule and goals.',
-      'Practical nutrition direction that fuels performance without noise or gimmicks.',
-    ][i],
-    image: pillarImages[i],
-  })), [settings]);
-
   return (
     <>
       <section className="mx-auto max-w-screen-xl px-6 pt-6 pb-10">
@@ -150,25 +135,6 @@ export default function HomePage() {
       </section>
 
       <WhyChooseSection />
-
-      <section id="pillars" className="mx-auto max-w-screen-xl px-6 pt-4 pb-14 md:pt-4 md:pb-18">
-        <div className="mb-12 flex flex-wrap items-baseline justify-between gap-4 border-b border-ink py-4">
-          <h2 className="font-section text-5xl uppercase md:text-6xl">{settings.pillars_heading || 'Three Pillars'}</h2>
-          <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-ink/50">Core Methodology · 01 / 03</span>
-        </div>
-        <div className="grid grid-cols-1 gap-px border border-ink/10 bg-ink/10 md:grid-cols-3">
-          {pillars.map((pillar) => (
-            <article key={pillar.title} className="group bg-paper p-8 transition-colors hover:bg-paper-dim md:p-10">
-              <span className="mb-10 block font-mono text-[10px] tracking-[0.22em] text-ink/50">{pillar.index} / 03</span>
-              <h3 className="mb-4 font-section text-4xl uppercase">{pillar.title}</h3>
-              <p className="mb-8 max-w-xs text-sm leading-relaxed text-ink-muted">{pillar.body}</p>
-              <div className="aspect-square overflow-hidden bg-paper-dim">
-                <img src={pillar.image} alt={pillar.title} loading="lazy" className="h-full w-full object-cover saturate-[0.88] contrast-[1.04] transition duration-[900ms] group-hover:scale-105 group-hover:saturate-100" />
-              </div>
-            </article>
-          ))}
-        </div>
-      </section>
 
       <section className="mx-auto max-w-screen-xl px-6 py-14 md:py-16">
         <div className="mb-10 flex flex-wrap items-end justify-between gap-4 border-b border-ink py-4">
