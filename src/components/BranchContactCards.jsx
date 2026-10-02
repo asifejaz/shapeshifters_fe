@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Check, MapPin, MessageCircle, Navigation, Phone, X } from 'lucide-react';
 import { whatsappUrl } from '../utils/whatsapp';
-import { branchMapUrl } from '../utils/branchMaps';
+import { branchMapEmbedUrl, branchMapUrl } from '../utils/branchMaps';
 
 const services = [
   'Gym membership',
@@ -30,6 +30,16 @@ export default function BranchContactCards({ branches = [], compact = false }) {
               <h3 className={`mt-7 font-display uppercase leading-none ${compact ? 'text-3xl' : 'text-4xl'}`}>{branch.name}</h3>
               {branch.address && <p className="mt-5 flex gap-3 text-sm leading-relaxed text-ink-muted"><MapPin className="mt-0.5 h-4 w-4 shrink-0 text-ember" />{branch.address}</p>}
               {branch.phone && <p className="mt-3 flex items-center gap-3 text-sm font-semibold"><Phone className="h-4 w-4 text-ember" />{branch.phone}</p>}
+              <div className="mt-6 aspect-[16/9] overflow-hidden border border-ink/10 bg-paper-dim">
+                <iframe
+                  src={branchMapEmbedUrl(branch, index)}
+                  title={`${branch.name} location map`}
+                  className="h-full w-full grayscale-[0.2]"
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  allowFullScreen
+                />
+              </div>
             </div>
             <div className="mt-8 grid gap-2">
               <button type="button" onClick={() => setSelectedBranch(branch)} className="inline-flex items-center justify-center gap-3 bg-ink px-5 py-3 font-mono text-[10px] font-semibold uppercase tracking-[0.22em] text-paper transition-colors hover:bg-ember">
